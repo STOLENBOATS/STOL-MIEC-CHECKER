@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M.I.E.C. • Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <header class="app-header">
+    <div class="brand">
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
+      <div class="titles">
+        <h1>M.I.E.C.</h1>
+        <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
+      </div>
+    </div>
+    <nav class="header-actions">
+      <button id="themeBtn" class="theme-toggle" title="Alternar tema">🌙/☀️</button>
+    </nav>
+  </header>
+
+
+  <main class="card narrow">
+    <h2>Login</h2>
+    <form id="loginForm" class="form-grid" autocomplete="off">
+      <label for="username"><b>Utilizador</b> <span class="hint">(Username)</span></label>
+      <input id="username" type="text" required placeholder="admin">
+
+      <label for="password"><b>Password</b></label>
+      <input id="password" type="password" required placeholder="Admin2025">
+
+      <button type="submit" class="btn primary">Entrar</button>
+      <p class="muted">Dica: <code>admin</code> / <code>Admin2025</code></p>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      if(u === 'admin' && p === 'Admin2025'){
+        sessionStorage.setItem('loggedIn', '1');
+        window.location.href = 'validador.html';
+      } else {
+        alert('Credenciais inválidas.');
+      }
+    });
+  </script>
+
+  <script>
+    (function(){
+      const saved = localStorage.getItem('theme') || 'dark';
+      const root = document.documentElement;
+      root.classList.remove('theme-dark','theme-light');
+      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
+      const btn = document.getElementById('themeBtn');
+      if(btn){
+        btn.addEventListener('click', ()=>{
+          const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
+          const next = curr==='light' ? 'dark' : 'light';
+          root.classList.toggle('theme-light');
+          root.classList.toggle('theme-dark');
+          localStorage.setItem('theme', next);
+        });
+      }
+    })();
+  </script>
+
+<footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v3.9 — 2025-08-20</p></footer>
+</body>
+</html>

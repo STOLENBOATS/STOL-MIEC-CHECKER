@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M.I.E.C. • Validador</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <header class="app-header">
+    <div class="brand">
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
+      <div class="titles">
+        <h1>M.I.E.C.</h1>
+        <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
+      </div>
+    </div>
+    <nav class="header-actions">
+      <a class="btn" href="historico_win.html" title="Histórico HIN / HIN History">Histórico HIN<span class="sub-en">(HIN History)</span></a>
+      <a class="btn" href="historico_motor.html" title="Histórico de Motores / Engine History">Histórico Motores<span class="sub-en">(Engine History)</span></a>
+      <button id="themeBtn" title="Alternar tema / Toggle theme" class="theme-toggle" title="Alternar tema">🌙/☀️</button>
+      <button id="logoutBtn" title="Terminar sessão / Log out" class="btn danger">Sair</button>
+    </nav>
+  </header>
+
+
+  <main class="container grid-2">
+    <!-- WIN Section -->
+    <section class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><h2>Validação HIN <span class="muted">(Hull Identification Number)</span></h2><div id="winBadge" class="badge hidden"></div></div>
+      <form id="winForm" class="form-grid">
+        <label for="winInput"><b>HIN</b> <span class="hint">(Ex.: FR-CNBZA135A612)</span></label>
+        <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required>
+        
+        <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span></label>
+        <input id="winPhoto" type="file" accept="image/*">
+        <label id="certLine" class="checkline" style="display:none;"><input id="winCert" type="checkbox"> <b>Certificado de Conformidade</b> apresentado (BV / organismo notificado)<span class="sub-en">(Conformity Certificate presented — Notified Body)</span></label>
+        <label class="checkline"><input id="winCert" type="checkbox"> <b>Certificado de Conformidade</b> apresentado (BV / organismo notificado)<span class="sub-en">(Conformity Certificate presented — Notified Body)</span></label>
+        
+        <button class="btn primary" type="submit" title="Validar HIN / Validate HIN">Validar HIN<br><span class="sub-en">(Validate HIN)</span></button>
+      </form>
+      <div id="winResult" class="result"></div>
+      <details class="card forense-card"><summary>Detalhe Forense (opcional)</summary><div class="two-col"><div><label><b>N.º Certificado</b></label><input id="certNumber" placeholder="ex.: BV-2021-XXXXX"></div><div><label><b>Entidade emissora</b></label><input id="certIssuer" placeholder="ex.: Bureau Veritas"></div></div><div id="winForense" class="forense"></div></details>
+    </section>
+
+    <!-- Engines Section -->
+    <section class="card">
+      <h2>Validação Motores</h2>
+      <form id="motorForm" class="form-grid">
+        <label for="brand"><b>Marca</b><span class="sub-en">(Brand)</span></label>
+        <a class="btn" id="forenseLink" href="forense_regras.html" title="Regras forenses / Forensic rules">Regras Forenses<span class="sub-en">(Forensic Rules)</span></a>
+        <select id="brand" required>
+          <option value="">— Selecionar — / — Select —</option>
+          <option value="Yamaha">Yamaha</option>
+          <option value="Honda">Honda</option>
+          <option value="Mercury" data-soon="1">Mercury (em breve)</option>
+          <option value="Suzuki" data-soon="1">Suzuki (em breve)</option>
+          <option value="Volvo Penta" data-soon="1">Volvo Penta (em breve)</option>
+          <option value="Evinrude" data-soon="1">Evinrude (em breve)</option>
+          <option value="Selva" data-soon="1">Selva (em breve)</option>
+          <option value="Tohatsu" data-soon="1">Tohatsu (em breve)</option>
+        </select>
+
+        <div id="brandFields"><!-- dynamic fields --></div>
+
+        <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span></label>
+        <input id="motorPhoto" type="file" accept="image/*">
+
+        <button class="btn primary" type="submit" title="Validar Motor / Validate Engine">Validar Motor</button>
+      </form>
+      <div id="motorResult" class="result"></div>
+      <details class="card forense-card"><summary>Detalhe Forense (opcional)</summary><div id="motorForense" class="forense"></div></details>
+    </section>
+  </main>
+
+  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v3.9 — 2025-08-20</p></footer>
+
+  <script src="js/validador-win.js"></script>
+  <script src="js/validador-motor.js"></script>
+  
+
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/forense.js"></script>
+  <script src="js/forense-adapter.js"></script>
+
+
+  <script>
+    // Theme init
+    (function(){
+      const saved = localStorage.getItem('theme') || 'dark';
+      const root = document.documentElement;
+      root.classList.remove('theme-dark','theme-light');
+      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
+      const btn = document.getElementById('themeBtn');
+      if(btn){
+        btn.addEventListener('click', ()=>{
+          const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
+          const next = curr==='light' ? 'dark' : 'light';
+          root.classList.toggle('theme-light');
+          root.classList.toggle('theme-dark');
+          localStorage.setItem('theme', next);
+        });
+      }
+    })();
+    // Session gate
+    if(sessionStorage.getItem('loggedIn') !== '1'){ window.location.href='login.html'; }
+    const lo = document.getElementById('logoutBtn');
+    if(lo){ lo.onclick = ()=>{ sessionStorage.removeItem('loggedIn'); window.location.href='login.html'; }; }
+  </script>
+
+
+<script>
+document.getElementById('forenseLink')?.addEventListener('click', function(e){
+  const b = document.getElementById('brand')?.value || '';
+  if(b){
+    this.href = 'forense_regras.html?brand=' + encodeURIComponent(b);
+  }
+});
+</script>
+
+</body>
+</html>
