@@ -233,6 +233,23 @@ document.getElementById('winForm').addEventListener('submit', async (e)=>{
     res.details = res.details || [];
     res.details.push(`Certificado: ${certNumber || '—'} • Entidade: ${certIssuer || '—'}`);
   }
+    // === Supabase save (if configured) ===
+  try{
+    if(window.supa?.ready()){
+      let photo_url = null;
+      if(photoFile){ photo_url = await window.supa.uploadPhoto(photoFile); }
+      await window.supa.saveHIN({
+        hin: norm,
+        result_ok: res.ok === false ? false : true,
+        details: (res.details||[]),
+        pre1998: !!(res.years && ((res.years.prod && res.years.prod < 1998) || (res.years.model && res.years.model < 1998))),
+        cert: document.getElementById('winCert')?.checked || false,
+        cert_number: document.getElementById('certNumber')?.value?.trim() || null,
+        cert_issuer: document.getElementById('certIssuer')?.value?.trim() || null,
+        photo_url
+      });
+    }
+  }catch(e){ console.warn('Supabase saveHIN falhou:', e); }
   const resultDiv = document.getElementById('winResult');
   resultDiv.className = 'result ' + (enforcedOk ? 'ok' : 'bad');
 
