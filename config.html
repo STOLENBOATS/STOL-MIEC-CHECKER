@@ -9,10 +9,10 @@ label{font-weight:600}input[type=text],input[type=password]{width:100%;padding:1
 .btns{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0}.btn{border:1px solid var(--border);padding:10px 14px;border-radius:12px;background:#eef3ff;cursor:pointer}
 .muted{color:var(--muted)}.ok{color:#0a7}.bad{color:#c33}.note{margin-top:10px;font-size:14px}code{background:#eef1f6;padding:2px 6px;border-radius:6px}</style></head>
 <body><div class="wrap"><h1>Configuração — Supabase <span class="muted">/ Cloud data</span></h1>
-<div class="card"><div class="row"><label>Project URL</label><input id="url" type="text" placeholder="https://xxxxx.supabase.co"></div>
-<div class="row"><label>Anon Key</label><input id="key" type="password" placeholder="eyJhbGciOi..."></div>
+<div class="card"><div class="row"><label>Project URL</label><input id="url" type="text" placeholder="https://okmifknkaidblkueiwjn.supabase.co"></div>
+<div class="row"><label>Anon Key</label><input id="key" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rbWlma25rYWlkYmxrdWVpd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTI2MTYsImV4cCI6MjA3MTI4ODYxNn0.hrr7wc-SUb2iQfhS1iWrnnZj2KLql2CyPsooZGo_N5Y"></div>
 <div class="row"><label>Bucket fotos</label><input id="bucket" type="text" value="photos"></div>
-<div class="row"><label>Domínio permitido</label><input id="domain" type="text" placeholder="pm.pt (opcional)"></div>
+<div class="row"><label>Domínio permitido</label><input id="domain" type="text" placeholder=""></div>
 <div class="btns"><button class="btn" id="testBtn">Testar ligação</button><button class="btn" id="saveBtn">Guardar</button><button class="btn" id="clearBtn">Limpar</button><a class="btn" href="validador.html">Voltar</a></div>
 <div id="out" class="muted"></div><p class="note muted">Guarda no <code>localStorage</code> em <code>MIEC_CONFIG</code>. A app lê estes valores automaticamente.</p></div></div>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
