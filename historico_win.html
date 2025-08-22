@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Histórico WIN</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supa.js"></script>
 </head>
 <body>
   
@@ -62,6 +65,35 @@
     })();
   </script>
 
-<footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.0.3-cloud-github — 2025-08-20</p></footer>
+<footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.1-cloud-diagnostics — 2025-08-22</p></footer>
+
+<script>
+(function(){
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  async function refreshUser(){
+    try{
+      if(!window.supa?.ready()) return;
+      const { user } = await window.supa.getUser();
+      if(loginBtn) loginBtn.textContent = user ? (user.email || 'Sessão ativa') : 'Entrar';
+      if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus();
+    }catch(e){ console.warn(e); }
+  }
+  loginBtn?.addEventListener('click', async ()=>{
+    try{
+      const email = document.getElementById('loginEmail').value.trim();
+      if(!email){ alert('Introduza email. / Enter email.'); return; }
+      await window.supa.loginMagic(email);
+      alert('Verifique o seu email para entrar. / Check your email to sign in.');
+    }catch(e){ console.error(e); alert('Falha no login: ' + e.message); }
+  });
+  logoutBtn?.addEventListener('click', async ()=>{
+    try{ await window.supa.logout(); alert('Sessão terminada.'); refreshUser(); }catch(e){ console.error(e); }
+  });
+  setTimeout(refreshUser, 600);
+})();
+</script>
+<script src="js/cloud-diag.js"></script>
+
 </body>
 </html>

@@ -77,7 +77,7 @@
     </section>
   </main>
 
-  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.0.3-cloud-github — 2025-08-20</p></footer>
+  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.1-cloud-diagnostics — 2025-08-22</p></footer>
 
   <script src="js/validador-win.js"></script>
   <script src="js/validador-motor.js"></script>
@@ -132,7 +132,8 @@ document.getElementById('forenseLink')?.addEventListener('click', function(e){
     try{
       if(!window.supa?.ready()) return;
       const { user } = await window.supa.getUser();
-      loginBtn.textContent = user ? (user.email || 'Sessão ativa') : 'Entrar';
+      if(loginBtn) loginBtn.textContent = user ? (user.email || 'Sessão ativa') : 'Entrar';
+      if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus();
     }catch(e){ console.warn(e); }
   }
   loginBtn?.addEventListener('click', async ()=>{
@@ -149,6 +150,7 @@ document.getElementById('forenseLink')?.addEventListener('click', function(e){
   setTimeout(refreshUser, 600);
 })();
 </script>
+<script src="js/cloud-diag.js"></script>
 
 </body>
 </html>

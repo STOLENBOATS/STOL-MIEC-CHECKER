@@ -14,6 +14,9 @@
   .k{display:inline-block;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.06);margin-right:6px;}
   .sub-en{display:block;font-style:italic;color:var(--muted);margin-top:2px;font-size:.9em;}
 </style>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supa.js"></script>
 </head>
 <body class="theme-light">
   <div class="container">
@@ -39,5 +42,34 @@
     <div id="rules"></div>
   </div>
 <script src="js/forense-regras.js"></script>
+
+<script>
+(function(){
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  async function refreshUser(){
+    try{
+      if(!window.supa?.ready()) return;
+      const { user } = await window.supa.getUser();
+      if(loginBtn) loginBtn.textContent = user ? (user.email || 'Sessão ativa') : 'Entrar';
+      if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus();
+    }catch(e){ console.warn(e); }
+  }
+  loginBtn?.addEventListener('click', async ()=>{
+    try{
+      const email = document.getElementById('loginEmail').value.trim();
+      if(!email){ alert('Introduza email. / Enter email.'); return; }
+      await window.supa.loginMagic(email);
+      alert('Verifique o seu email para entrar. / Check your email to sign in.');
+    }catch(e){ console.error(e); alert('Falha no login: ' + e.message); }
+  });
+  logoutBtn?.addEventListener('click', async ()=>{
+    try{ await window.supa.logout(); alert('Sessão terminada.'); refreshUser(); }catch(e){ console.error(e); }
+  });
+  setTimeout(refreshUser, 600);
+})();
+</script>
+<script src="js/cloud-diag.js"></script>
+
 </body>
 </html>
