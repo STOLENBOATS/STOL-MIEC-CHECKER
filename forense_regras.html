@@ -42,34 +42,15 @@
     <div id="rules"></div>
   </div>
 <script src="js/forense-regras.js"></script>
-
 <script>
 (function(){
-  const loginBtn = document.getElementById('loginBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  async function refreshUser(){
-    try{
-      if(!window.supa?.ready()) return;
-      const { user } = await window.supa.getUser();
-      if(loginBtn) loginBtn.textContent = user ? (user.email || 'Sessão ativa') : 'Entrar';
-      if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus();
-    }catch(e){ console.warn(e); }
-  }
-  loginBtn?.addEventListener('click', async ()=>{
-    try{
-      const email = document.getElementById('loginEmail').value.trim();
-      if(!email){ alert('Introduza email. / Enter email.'); return; }
-      await window.supa.loginMagic(email);
-      alert('Verifique o seu email para entrar. / Check your email to sign in.');
-    }catch(e){ console.error(e); alert('Falha no login: ' + e.message); }
-  });
-  logoutBtn?.addEventListener('click', async ()=>{
-    try{ await window.supa.logout(); alert('Sessão terminada.'); refreshUser(); }catch(e){ console.error(e); }
-  });
-  setTimeout(refreshUser, 600);
+  const loginBtn=document.getElementById('loginBtn');const logoutBtn=document.getElementById('logoutBtn');
+  async function refresh(){try{if(!window.supa?.ready())return;const {user}=await window.supa.getUser();if(loginBtn)loginBtn.textContent=user?(user.email||'Sessão ativa'):'Entrar';if(window.MIEC_updateCloudStatus)window.MIEC_updateCloudStatus();}catch(e){}}
+  loginBtn?.addEventListener('click',async()=>{try{const em=document.getElementById('loginEmail').value.trim();if(!em){alert('Introduza email.');return;}await window.supa.loginMagic(em);alert('Verifique email para entrar.');}catch(e){alert('Falha login: '+(e.message||e))}});
+  logoutBtn?.addEventListener('click',async()=>{try{await window.supa.logout();alert('Sessão terminada.');refresh();}catch(e){} });
+  setTimeout(refresh,600);
 })();
 </script>
 <script src="js/cloud-diag.js"></script>
-
 </body>
 </html>

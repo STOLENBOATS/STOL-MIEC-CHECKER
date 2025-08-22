@@ -1,74 +1,26 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M.I.E.C. • Login</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  
-  <header class="app-header">
-    <div class="brand">
-      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
-      <div class="titles">
-        <h1>M.I.E.C.</h1>
-        <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
-      </div>
-    </div>
-    <nav class="header-actions">
-      <button id="themeBtn" class="theme-toggle" title="Alternar tema">🌙/☀️</button>
-    </nav>
-  </header>
-
-
-  <main class="card narrow">
-    <h2>Login</h2>
-    <form id="loginForm" class="form-grid" autocomplete="off">
-      <label for="username"><b>Utilizador</b> <span class="hint">(Username)</span></label>
-      <input id="username" type="text" required placeholder="admin">
-
-      <label for="password"><b>Password</b></label>
-      <input id="password" type="password" required placeholder="Admin2025">
-
-      <button type="submit" class="btn primary">Entrar</button>
-      <p class="muted">Dica: <code>admin</code> / <code>Admin2025</code></p>
-    </form>
-  </main>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value;
-      if(u === 'admin' && p === 'Admin2025'){
-        sessionStorage.setItem('loggedIn', '1');
-        window.location.href = 'validador.html';
-      } else {
-        alert('Credenciais inválidas.');
-      }
-    });
-  </script>
-
-  <script>
-    (function(){
-      const saved = localStorage.getItem('theme') || 'dark';
-      const root = document.documentElement;
-      root.classList.remove('theme-dark','theme-light');
-      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
-      const btn = document.getElementById('themeBtn');
-      if(btn){
-        btn.addEventListener('click', ()=>{
-          const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
-          const next = curr==='light' ? 'dark' : 'light';
-          root.classList.toggle('theme-light');
-          root.classList.toggle('theme-dark');
-          localStorage.setItem('theme', next);
-        });
-      }
-    })();
-  </script>
-
-<footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v3.9 — 2025-08-20</p></footer>
-</body>
-</html>
+<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>M.I.E.C. • Login</title>
+<style>:root{--bg:#f6f8fc;--card:#fff;--border:#e5e9f2;--text:#0b1220;--muted:#6b7280}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Arial}
+.wrap{min-height:100svh;display:grid;place-items:center;padding:24px}
+.card{width:min(760px,100%);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+h1{margin:0 0 4px;font-size:36px}.sub{color:var(--muted);margin:0 0 18px;font-size:18px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:14px}
+.brand img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1))}
+label{font-weight:600;display:block;margin:10px 0 6px}input[type=email]{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid var(--border);background:#eef3ff;padding:10px 14px;border-radius:12px;cursor:pointer}
+.link{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid var(--border);text-decoration:none;color:inherit;background:#f3f4f7}
+.muted{color:var(--muted)}.ok{color:#0a7}.bad{color:#c33}.warn{color:#b58900}footer{margin-top:14px;text-align:center;color:var(--muted);font-size:14px}
+</style></head><body><div class="wrap"><div class="card">
+<div class="topline"><div class="brand"><img src="img/pm-logo.jpg" alt="PM"><div><h1>M.I.E.C.</h1><p class="sub">Maritime Identification &amp; Engine Checker</p></div></div>
+<div id="cloudStatus" class="muted">Cloud: ...</div></div>
+<label for="email">Email</label><input id="email" type="email" placeholder="ex.: utilizador@gmail.com">
+<div class="row"><button class="btn" id="loginBtn">Entrar (link mágico)</button><a class="link" href="config.html">Configurar</a><a class="link" href="validador.html">Ir para o Validador</a><button class="btn" id="logoutBtn">Sair</button></div>
+<p id="out" class="muted" style="margin-top:10px"></p>
+<footer>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.3-cloud-diagnostics — 2025-08-22</footer>
+</div></div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supa.js"></script><script src="js/cloud-diag.js"></script>
+<script>const $=s=>document.querySelector(s),out=$('#out');function say(t,c='muted'){out.className=c;out.textContent=t;}async function refresh(){try{if(!window.supa?.ready()){$('#cloudStatus').textContent='Cloud: OFF';$('#cloudStatus').className='bad';return;}const {user}=await window.supa.getUser();if(user){$('#cloudStatus').textContent='Cloud: ON — '+(user.email||'sessão ativa');$('#cloudStatus').className='ok';}else{$('#cloudStatus').textContent='Cloud: ON — sem sessão';$('#cloudStatus').className='warn';}}catch(e){$('#cloudStatus').textContent='Cloud: erro';$('#cloudStatus').className='bad';}}
+$('#loginBtn').addEventListener('click',async()=>{try{const email=$('#email').value.trim();if(!email)return say('Introduza um email.','bad');await window.supa.loginMagic(email);say('Link enviado. Verifique o seu email.','ok');}catch(e){console.error(e);say('Falha: '+(e.message||e),'bad');}});
+$('#logoutBtn').addEventListener('click',async()=>{try{await window.supa.logout();say('Sessão terminada.','ok');refresh();}catch(e){say('Falha a sair: '+(e.message||e),'bad');}});
+setTimeout(refresh,400);</script></body></html>
