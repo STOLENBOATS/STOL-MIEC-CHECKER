@@ -23,7 +23,6 @@
 <body>
   <div class="wrap">
     <h1>Configuração — Supabase <span class="muted">/ Cloud data</span></h1>
-
     <div class="card">
       <div class="row"><label>Project URL</label>
         <input id="url" type="text" placeholder="https://xxxxx.supabase.co">
@@ -37,73 +36,39 @@
       <div class="row"><label>Domínio permitido</label>
         <input id="domain" type="text" placeholder="pm.pt (opcional)">
       </div>
-
       <div class="btns">
         <button class="btn" id="testBtn">Testar ligação</button>
         <button class="btn" id="saveBtn">Guardar</button>
         <button class="btn" id="clearBtn">Limpar</button>
         <a class="btn" href="validador.html">Voltar</a>
       </div>
-
       <div id="out" class="muted"></div>
-      <p class="note muted">
-        Guarda no <code>localStorage</code> sob a chave <code>MIEC_CONFIG</code>. Se
-        <code>js/supa.js</code> existir, também chama <code>supa.setConfig()</code>.
-      </p>
+      <p class="note muted">Guarda no <code>localStorage</code> em <code>MIEC_CONFIG</code>. A app lê estes valores automaticamente.</p>
     </div>
   </div>
-
-  <!-- CDN do Supabase p/ teste de ligação -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    // helpers
-    const STORE_KEY = 'MIEC_CONFIG';
-    const $ = (s)=>document.querySelector(s);
-    const msg = (t,cls='muted') => { const o=$('#out'); o.className=cls; o.textContent=t; };
-
-    // carregar valores já guardados (localStorage + js/config.js, se existir)
-    (function init(){
-      try{
-        const base = (window.MIEC_CONFIG||{});
-        const saved = JSON.parse(localStorage.getItem(STORE_KEY)||'{}');
-        const cfg = Object.assign({}, base, saved);
-        $('#url').value    = cfg.SUPABASE_URL    || '';
-        $('#key').value    = cfg.SUPABASE_ANON_KEY || '';
-        $('#bucket').value = cfg.STORAGE_BUCKET || 'photos';
-        $('#domain').value = cfg.ALLOW_DOMAIN || '';
-      }catch(e){ console.warn(e); }
-    })();
-
-    // guardar
-    $('#saveBtn').addEventListener('click', ()=>{
-      const cfg = {
-        SUPABASE_URL: $('#url').value.trim(),
-        SUPABASE_ANON_KEY: $('#key').value.trim(),
-        STORAGE_BUCKET: $('#bucket').value.trim() || 'photos',
-        ALLOW_DOMAIN: $('#domain').value.trim() || undefined
-      };
+    const STORE_KEY='MIEC_CONFIG'; const $=s=>document.querySelector(s);
+    const msg=(t,cls='muted')=>{const o=$('#out');o.className=cls;o.textContent=t;};
+    (function init(){ try{ const base=(window.MIEC_CONFIG||{});
+      const saved=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');
+      const cfg=Object.assign({},base,saved);
+      $('#url').value=cfg.SUPABASE_URL||''; $('#key').value=cfg.SUPABASE_ANON_KEY||'';
+      $('#bucket').value=cfg.STORAGE_BUCKET||'photos'; $('#domain').value=cfg.ALLOW_DOMAIN||'';
+    }catch(e){console.warn(e);} })();
+    $('#saveBtn').addEventListener('click',()=>{
+      const cfg={ SUPABASE_URL:$('#url').value.trim(), SUPABASE_ANON_KEY:$('#key').value.trim(),
+        STORAGE_BUCKET:$('#bucket').value.trim()||'photos', ALLOW_DOMAIN:$('#domain').value.trim()||undefined };
       localStorage.setItem(STORE_KEY, JSON.stringify(cfg));
-      if(window.supa && typeof window.supa.setConfig==='function'){ window.supa.setConfig(cfg); }
       msg('Guardado. Volte ao Validador e faça login.', 'ok');
     });
-
-    // limpar
-    $('#clearBtn').addEventListener('click', ()=>{
-      localStorage.removeItem(STORE_KEY);
-      if(window.supa && typeof window.supa.clearConfig==='function'){ window.supa.clearConfig(); }
-      msg('Configuração limpa. A app volta a usar js/config.js (se existir).', 'ok');
-    });
-
-    // testar ligação
+    $('#clearBtn').addEventListener('click',()=>{ localStorage.removeItem(STORE_KEY); msg('Config limpa.', 'ok'); });
     $('#testBtn').addEventListener('click', async ()=>{
-      try{
-        const url = $('#url').value.trim();
-        const key = $('#key').value.trim();
-        if(!url || !key){ msg('Preencha URL e Anon Key.', 'bad'); return; }
-        const client = window.supabase.createClient(url, key);
-        await client.auth.getSession(); // chamada simples
-        msg('Ligação OK (URL + Anon Key válidos).', 'ok');
-      }catch(e){ msg('Falha: ' + (e.message||e), 'bad'); }
+      try{ const url=$('#url').value.trim(), key=$('#key').value.trim();
+        if(!url||!key){ msg('Preencha URL e Anon Key.', 'bad'); return; }
+        const client=supabase.createClient(url,key); await client.auth.getSession();
+        msg('Ligação OK (URL + Anon válidos).','ok');
+      }catch(e){ msg('Falha: '+(e.message||e),'bad'); }
     });
   </script>
 </body>
