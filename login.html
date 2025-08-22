@@ -19,8 +19,46 @@ label{font-weight:600;display:block;margin:10px 0 6px}input[type=email]{width:10
 <p id="out" class="muted" style="margin-top:10px"></p>
 <footer>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.3-cloud-diagnostics — 2025-08-22</footer>
 </div></div>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supa.js"></script><script src="js/cloud-diag.js"></script>
-<script>const $=s=>document.querySelector(s),out=$('#out');function say(t,c='muted'){out.className=c;out.textContent=t;}async function refresh(){try{if(!window.supa?.ready()){$('#cloudStatus').textContent='Cloud: OFF';$('#cloudStatus').className='bad';return;}const {user}=await window.supa.getUser();if(user){$('#cloudStatus').textContent='Cloud: ON — '+(user.email||'sessão ativa');$('#cloudStatus').className='ok';}else{$('#cloudStatus').textContent='Cloud: ON — sem sessão';$('#cloudStatus').className='warn';}}catch(e){$('#cloudStatus').textContent='Cloud: erro';$('#cloudStatus').className='bad';}}
-$('#loginBtn').addEventListener('click',async()=>{try{const email=$('#email').value.trim();if(!email)return say('Introduza um email.','bad');await window.supa.loginMagic(email);say('Link enviado. Verifique o seu email.','ok');}catch(e){console.error(e);say('Falha: '+(e.message||e),'bad');}});
-$('#logoutBtn').addEventListener('click',async()=>{try{await window.supa.logout();say('Sessão terminada.','ok');refresh();}catch(e){say('Falha a sair: '+(e.message||e),'bad');}});
-setTimeout(refresh,400);</script></body></html>
+<!-- 1) SDK do Supabase + config + helpers (ordem OBRIGATÓRIA) -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=414"></script>
+<script src="js/supa.js?v=414"></script>
+
+<!-- 2) O teu script inline que usa window.supa (depois do supa.js) -->
+<script>
+  const $ = s => document.querySelector(s), out = $('#out');
+  function say(t,c='muted'){ out.className=c; out.textContent=t; }
+
+  async function refresh(){
+    try{
+      const st = document.getElementById('cloudStatus');
+      if(!window.supa?.ready()){ st.textContent='Cloud: OFF'; st.className='bad'; return; }
+      const { user } = await window.supa.getUser();
+      if(user){ st.textContent = 'Cloud: ON — ' + (user.email||'sessão ativa'); st.className='ok'; }
+      else    { st.textContent = 'Cloud: ON — sem sessão'; st.className='warn'; }
+    }catch(e){
+      const st = document.getElementById('cloudStatus');
+      st.textContent='Cloud: erro'; st.className='bad';
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    try {
+      const email = document.getElementById('email').value.trim();
+      if(!email) return say('Introduza um email.','bad');
+      await window.supa.loginMagic(email);
+      say('Link enviado. Verifique o seu email.','ok');
+    } catch(e){ console.error(e); say('Falha: ' + (e.message||e), 'bad'); }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try { await window.supa.logout(); say('Sessão terminada.','ok'); refresh(); }
+    catch(e){ say('Falha a sair: ' + (e.message||e), 'bad'); }
+  });
+
+  setTimeout(refresh, 400);
+</script>
+
+<!-- 3) (Opcional) diagnóstico cloud -->
+<script src="js/cloud-diag.js?v=414"></script>
+</body></html>
