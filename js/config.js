@@ -1,1 +1,1 @@
-window.MIEC_CONFIG={SUPABASE_URL:'',SUPABASE_ANON_KEY:'',STORAGE_BUCKET:'photos',ALLOW_DOMAIN:''};
+const NAV={BUILD:'N.A.V 2.2.2 FALLBACK',STORAGE:{SESSION:'nav_session',WIN_HISTORY:'winHistory',MOTOR_HISTORY:'motorHistory'},THEME_KEY:'nav_theme'};

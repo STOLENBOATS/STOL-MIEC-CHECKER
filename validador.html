@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.I.E.C. • Validador</title>
-  <link rel="stylesheet" href="css/styles.css"></head>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
 <body>
   
   <header class="app-header">
@@ -73,7 +74,7 @@
     </section>
   </main>
 
-  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.5 — 2025-08-23</p></footer>
+  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.6 — 2025-08-23</p></footer>
 
   <script src="js/validador-win.js"></script>
   <script src="js/validador-motor.js"></script><script src="js/utils.js"></script>
@@ -115,18 +116,20 @@ document.getElementById('forenseLink')?.addEventListener('click', function(e){
 });
 </script>
 
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/config.js?v=414"></script>
-<script src="js/supa.js?v=414"></script>
+<script src="js/config.js?v=416"></script>
+<script src="js/supa.js?v=416"></script>
 <script>
 (function(){
-  const loginBtn=document.getElementById('loginBtn');const logoutBtn=document.getElementById('logoutBtn');
-  async function refresh(){try{if(!window.supa?.ready())return;const {user}=await window.supa.getUser();if(loginBtn)loginBtn.textContent=user?(user.email||'Sessão ativa'):'Entrar';if(window.MIEC_updateCloudStatus)window.MIEC_updateCloudStatus();}catch(e){}}
-  loginBtn?.addEventListener('click',async()=>{try{const em=document.getElementById('loginEmail').value.trim();if(!em){alert('Introduza email.');return;}await window.supa.loginMagic(em);alert('Verifique email para entrar.');}catch(e){alert('Falha login: '+(e.message||e))}});
-  logoutBtn?.addEventListener('click',async()=>{try{await window.supa.logout();alert('Sessão terminada.');refresh();}catch(e){} });
-  setTimeout(refresh,600);
+  const loginBtn=document.getElementById('loginBtn'); const logoutBtn=document.getElementById('logoutBtn');
+  async function refresh(){ try{ if(!window.supa?.ready()) return; const r = await window.supa.getUser(); const user=r&&r.user; if(loginBtn) loginBtn.textContent = user ? (user.email||'Sessão ativa') : 'Entrar'; if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus(); }catch(e){} }
+  loginBtn?.addEventListener('click',async()=>{ try{ const em=document.getElementById('loginEmail').value.trim(); if(!em){ alert('Introduza email.'); return; } await window.supa.loginMagic(em); alert('Verifique email para entrar.'); }catch(e){ alert('Falha login: '+(e.message||e)); } });
+  logoutBtn?.addEventListener('click',async()=>{ try{ await window.supa.logout(); alert('Sessão terminada.'); refresh(); }catch(e){} });
+  setTimeout(refresh, 600);
 })();
 </script>
-<script src="js/cloud-diag.js?v=414"></script>
+<script src="js/cloud-diag.js?v=416"></script>
+
 </body>
 </html>

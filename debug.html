@@ -1,4 +1,19 @@
-<!DOCTYPE html><meta charset="utf-8">
-<title>MIEC Cloud Debug</title><h1>MIEC Cloud Debug</h1>
-<button id="load">Load last 10</button>
+<!doctype html><meta charset="utf-8"><title>MIEC Debug</title>
+<h1>MIEC Cloud Debug</h1>
+<button id="btn">Check</button>
 <pre id="out"></pre>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=416"></script>
+<script src="js/supa.js?v=416"></script>
+<script>
+document.getElementById('btn').onclick = async ()=>{
+  const out=document.getElementById('out');
+  out.textContent = 'ready: ' + (!!window.supa && window.supa.ready()) + '\n';
+  try{
+    const r = await window.supa.getUser();
+    out.textContent += 'getUser: ' + JSON.stringify(r, null, 2);
+  }catch(e){
+    out.textContent += 'getUser error: ' + (e.message||e);
+  }
+};
+</script>
