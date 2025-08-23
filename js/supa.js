@@ -19,16 +19,55 @@ window.supa = (function(){
   }
 
   async function handleRedirect(){
-    try{
-      const { data, error } = await client.auth.getSessionFromUrl({ storeSession:true });
-      if(!error && data && data.session){
-        console.log('[MIEC] Session stored from URL for', data.session.user?.email);
-        history.replaceState({}, document.title, location.pathname);
-        if(window.MIEC_updateCloudStatus) try{ window.MIEC_updateCloudStatus(); }catch(_){}
-      } else if (error && error.name !== 'AuthSessionMissingError'){
-        console.warn('[MIEC] getSessionFromUrl:', error);
-      }
-    }catch(e){ /* ignore if no tokens present */ }
+  // Lê params tanto de ?query como de #hash
+  const getParams = () => {
+    const qs = location.search && location.search.slice(1);
+    const hs = location.hash && location.hash.slice(1);
+    const raw = hs || qs || '';
+    return new URLSearchParams(raw);
+  };
+
+  try {
+    const p = getParams();
+
+    // Caso 1: hash com access_token/refresh_token
+    if (p.get('access_token') && p.get('refresh_token')) {
+      const { data, error } = await client.auth.setSession({
+        access_token: p.get('access_token'),
+        refresh_token: p.get('refresh_token')
+      });
+      if (error) console.warn('[MIEC] setSession:', error);
+      history.replaceState({}, document.title, location.pathname); // limpa URL
+      if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
+      return;
+    }
+
+    // Caso 2: magic link com token_hash (v2)
+    if (p.get('token_hash')) {
+      const type  = p.get('type') || 'magiclink';
+      const email = (localStorage.getItem('MIEC_LAST_EMAIL') || '').trim() || undefined;
+      const { data, error } = await client.auth.verifyOtp({
+        type, token_hash: p.get('token_hash'), email
+      });
+      if (error) console.warn('[MIEC] verifyOtp:', error);
+      history.replaceState({}, document.title, location.pathname);
+      if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
+      return;
+    }
+
+    // Caso 3: fluxo com ?code=... (OAuth/PKCE)
+    if (p.get('code')) {
+      const { data, error } = await client.auth.exchangeCodeForSession(p.get('code'));
+      if (error) console.warn('[MIEC] exchangeCodeForSession:', error);
+      history.replaceState({}, document.title, location.pathname);
+      if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
+      return;
+    }
+  } catch (e) {
+    console.warn('[MIEC] handleRedirect error:', e);
+  }
+}
+
   }
 
   function getConfig(){ return Object.assign({}, cfg); }
@@ -44,16 +83,25 @@ window.supa = (function(){
   }
 
   async function loginMagic(email){
-    if(!ready()) throw new Error('Supabase not configured');
-    if(cfg.ALLOW_DOMAIN){
-      const d=(email.split('@')[1]||'').toLowerCase();
-      if(d!==String(cfg.ALLOW_DOMAIN).toLowerCase()) throw new Error(`Email deve terminar em @${cfg.ALLOW_DOMAIN}`);
-    }
-    const redirectTo = computeRedirect();
-    const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo }});
-    if(error) throw error;
-    return true;
+  if(!ready()) throw new Error('Supabase not configured');
+
+  // guarda para o verifyOtp
+  try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_) {}
+
+  if(cfg.ALLOW_DOMAIN){
+    const d = (email.split('@')[1] || '').toLowerCase();
+    if (d !== String(cfg.ALLOW_DOMAIN).toLowerCase())
+      throw new Error(`Email deve terminar em @${cfg.ALLOW_DOMAIN}`);
   }
+
+  const redirectTo = computeRedirect(); // normalmente .../validador.html
+  const { error } = await client.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo, shouldCreateUser: true }
+  });
+  if (error) throw error;
+  return true;
+}
 
   async function logout(){ if(!ready()) return; await client.auth.signOut(); }
 
