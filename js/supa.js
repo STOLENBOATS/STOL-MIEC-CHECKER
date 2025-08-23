@@ -24,7 +24,6 @@ window.supa = (function () {
 
   // -- Finaliza sessão a partir do URL (v2: setSession / verifyOtp / exchangeCodeForSession)
   async function handleRedirect() {
-    // Lê params tanto de ?query como de #hash
     const getParams = () => {
       const qs  = location.search && location.search.slice(1);
       const hs  = location.hash   && location.hash.slice(1);
@@ -42,7 +41,7 @@ window.supa = (function () {
           refresh_token: p.get('refresh_token')
         });
         if (error) console.warn('[MIEC] setSession:', error);
-        history.replaceState({}, document.title, location.pathname); // limpa URL
+        history.replaceState({}, document.title, location.pathname);
         if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
         return;
       }
@@ -91,8 +90,6 @@ window.supa = (function () {
   // Link mágico (envio)
   async function loginMagic(email) {
     if (!ready()) throw new Error('Supabase not configured');
-
-    // guarda para o verifyOtp (token_hash)
     try { localStorage.setItem('MIEC_LAST_EMAIL', String(email || '').trim()); } catch (_) {}
 
     if (cfg.ALLOW_DOMAIN) {
@@ -110,7 +107,7 @@ window.supa = (function () {
     return true;
   }
 
-  // Plano B: OTP de 6 dígitos do email
+  // Plano B: validar OTP de 6 dígitos do email
   async function verifyCode(email, code) {
     if (!ready()) throw new Error('Supabase not configured');
     try { localStorage.setItem('MIEC_LAST_EMAIL', String(email || '').trim()); } catch (_) {}
@@ -118,6 +115,27 @@ window.supa = (function () {
       email,
       token: String(code || '').trim(),
       type: 'email'
+    });
+    if (error) throw error;
+    return true;
+  }
+
+  // Forçar envio do email APENAS com o código (OTP) — usa auth.resend
+  async function sendEmailOtp(email){
+    if(!ready()) throw new Error('Supabase not configured');
+    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
+    const { error } = await client.auth.resend({ type: 'email_otp', email });
+    if (error) throw error;
+    return true;
+  }
+
+  // Alternativa: enviar OTP sem redirect (útil se resend não estiver disponível)
+  async function sendOtpOnly(email){
+    if(!ready()) throw new Error('Supabase not configured');
+    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true } // sem emailRedirectTo => normalmente envia só o código
     });
     if (error) throw error;
     return true;
@@ -176,7 +194,9 @@ window.supa = (function () {
     getClient: () => init(),
     getUser,
     loginMagic,
-    verifyCode,     // << plano B OTP
+    verifyCode,       // valida código de 6 dígitos
+    sendEmailOtp,     // força envio do email OTP (resend)
+    sendOtpOnly,      // alternativa via signInWithOtp sem redirect
     logout,
     saveHIN,
     listHIN,
