@@ -63,10 +63,10 @@ window.supa = (function(){
       if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
       return;
     }
-  } catch (e) {
+    } catch (e) {
     console.warn('[MIEC] handleRedirect error:', e);
   }
-
+}
 
   function getConfig(){ return Object.assign({}, cfg); }
   function setConfig(c){ localStorage.setItem(STORE_KEY, JSON.stringify(c||{})); cfg = merge(base, c||{}); client=null; init(); return getConfig(); }
