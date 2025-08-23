@@ -67,7 +67,6 @@ window.supa = (function(){
     console.warn('[MIEC] handleRedirect error:', e);
   }
 
-  }
 
   function getConfig(){ return Object.assign({}, cfg); }
   function setConfig(c){ localStorage.setItem(STORE_KEY, JSON.stringify(c||{})); cfg = merge(base, c||{}); client=null; init(); return getConfig(); }
