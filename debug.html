@@ -1,18 +1,4 @@
 <!DOCTYPE html><meta charset="utf-8">
-<title>MIEC Cloud Debug</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/supa.js"></script>
-<h1>MIEC Cloud Debug</h1>
+<title>MIEC Cloud Debug</title><h1>MIEC Cloud Debug</h1>
 <button id="load">Load last 10</button>
 <pre id="out"></pre>
-<script>
-document.getElementById('load').onclick = async ()=>{
-  try{
-    const cfg = window.supa.getConfig();
-    document.getElementById('out').textContent = 'Config: '+JSON.stringify(cfg,null,2)+'\nLoading...';
-    const hin = await window.supa.listHIN(10);
-    const eng = await window.supa.listEngine(10);
-    document.getElementById('out').textContent = 'HIN:\n'+JSON.stringify(hin,null,2)+'\n\nENG:\n'+JSON.stringify(eng,null,2);
-  }catch(e){ document.getElementById('out').textContent = 'Error: '+(e.message||e); }
-};
-</script>
