@@ -53,9 +53,10 @@
       <input id="otpEmail" type="email" placeholder="Email (se diferente do de cima)" style="flex:1;min-width:240px">
       <input id="otpCode"  type="text" inputmode="numeric" maxlength="6" placeholder="Código (6 dígitos)" style="width:160px">
       <button class="btn" id="otpBtn">Entrar com código</button>
+      <button class="btn" id="sendOtpBtn" title="Envia e-mail apenas com o código">Enviar código (OTP)</button>
     </div>
     <p class="muted" style="margin-top:6px">
-      Se o link do email não abrir sessão, copie o código de 6 dígitos e use aqui.
+      Se o link do email não abrir sessão, peça o código e introduza aqui.
     </p>
 
     <p id="out" class="muted" style="margin-top:10px"></p>
@@ -90,7 +91,7 @@
         st.textContent='Cloud: erro'; st.className='bad';
       }
     }
-    // Disponibiliza para o supa.js atualizar quando cria sessão pelo URL
+    // permite ao supa.js atualizar o estado quando cria sessão via URL
     window.MIEC_updateCloudStatus = refresh;
 
     // Link mágico
@@ -109,8 +110,25 @@
       catch(e){ say('Falha a sair: '+(e.message||e),'bad'); }
     });
 
-    // Plano B: OTP 6 dígitos
-    document.getElementById('otpBtn').addEventListener('click', async ()=>{
+    // Enviar código (OTP) por email
+    document.getElementById('sendOtpBtn').addEventListener('click', async ()=>{
+      try{
+        const email = ($('#otpEmail').value.trim() || $('#email').value.trim());
+        if(!email) return say('Indique o email para enviar o código.','bad');
+        if (window.supa.sendEmailOtp) {
+          await window.supa.sendEmailOtp(email);
+        } else {
+          await window.supa.sendOtpOnly(email);
+        }
+        say('Código enviado. Verifique o seu email.','ok');
+      }catch(e){
+        console.error(e);
+        say('Falha ao enviar OTP: '+(e.message||e),'bad');
+      }
+    });
+
+    // Entrar com código (OTP)
+    async function doOtpLogin(){
       try{
         const email = ($('#otpEmail').value.trim() || $('#email').value.trim());
         const code  = $('#otpCode').value.trim();
@@ -122,6 +140,10 @@
         console.error(e);
         say('Falha no código: '+(e.message||e),'bad');
       }
+    }
+    document.getElementById('otpBtn').addEventListener('click', doOtpLogin);
+    document.getElementById('otpCode').addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter') doOtpLogin();
     });
 
     // Primeiro refresh
@@ -131,3 +153,4 @@
   <script src="js/cloud-diag.js?v=416"></script>
 </body>
 </html>
+
