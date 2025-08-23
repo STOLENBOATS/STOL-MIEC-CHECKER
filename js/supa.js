@@ -66,7 +66,6 @@ window.supa = (function(){
   } catch (e) {
     console.warn('[MIEC] handleRedirect error:', e);
   }
-}
 
   }
 
