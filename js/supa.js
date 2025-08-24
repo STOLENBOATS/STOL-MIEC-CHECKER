@@ -1,188 +1,149 @@
-/* M.I.E.C. supa.js (auth gate patch 418)
-   - Robust finalizeFromUrl(): handles PKCE (?code=), implicit (#access_token) and legacy (?token / token_hash) flows
-   - Cleans URL after processing (preserves ?v query if present)
-   - Exposes helpers on window.SupaAuth
-   Requirements:
-     - Load order on pages that use it:
-       1) @supabase/supabase-js v2 CDN
-       2) js/config.js  (defines SUPABASE_URL, SUPABASE_ANON_KEY)
-       3) js/supa.js    (this file)
+/* M.I.E.C. supa.js — unified auth + compat alias (v418c)
+   - Manual finalizeFromUrl() for PKCE (?code=), implicit (#access_token), legacy (?token/token_hash)
+   - Cleans URL after processing (preserves ?v if present)
+   - Exposes window.SupaAuth API
+   - Adds window.supa alias for back-compat (ready/getUser/saveHIN/saveEngine/etc.)
 */
-(function () {
-  if (window.__MIEC_SUPA_INIT__) return;
-  window.__MIEC_SUPA_INIT__ = true;
+(function(){
+  if (window.__MIEC_SUPA_INIT__) return; window.__MIEC_SUPA_INIT__ = true;
 
-  if (typeof window.SUPABASE_URL === "undefined" || typeof window.SUPABASE_ANON_KEY === "undefined") {
-    console.error("[auth] Missing SUPABASE_URL / SUPABASE_ANON_KEY. Check js/config.js");
+  if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+    console.error("[auth] Supabase not available or config missing (js/config.js).");
     return;
   }
 
-  // Create client with explicit settings used in this project
-  const supa = window.supabase?.createClient
-    ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: false, // we handle it manually
-        },
-      })
-    : null;
+  const supa = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false, // manual handling
+    },
+  });
 
-  if (!supa) {
-    console.error("[auth] Supabase client not found. Ensure the CDN script is loaded before supa.js");
-    return;
+  function vParam(){
+    try { return new URL(window.location.href).searchParams.get("v") || ""; } catch(e){ return ""; }
   }
-
-  // ---- utilities ----
-  function getVParamOrDefault() {
-    const url = new URL(window.location.href);
-    return url.searchParams.get("v") || "417"; // keep current project default unless caller forces another
-  }
-
-  function hasAuthParamsInUrl() {
+  function hasAuthParamsInUrl(){
     const u = new URL(window.location.href);
     const hash = u.hash || "";
-    // PKCE / Recovery / Email change (query param "code")
     if (u.searchParams.has("code")) return true;
-    // Legacy token hash variants from templates
     if (u.searchParams.has("token") || u.searchParams.has("token_hash")) return true;
-    // Implicit flow puts tokens in the hash
     if (hash.includes("access_token") || hash.includes("refresh_token")) return true;
     return false;
   }
-
-  function parseHashParams() {
-    const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
-    return new URLSearchParams(hash);
+  function parseHashParams(){
+    const h = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+    return new URLSearchParams(h);
+  }
+  function cleanAuthParamsFromUrl(){
+    try{
+      const u = new URL(window.location.href);
+      const v = vParam();
+      u.hash = "";
+      if (v) { u.search = "?v="+encodeURIComponent(v); } else { u.search = ""; }
+      history.replaceState({}, document.title, u.toString());
+    }catch(e){ /* ignore */ }
   }
 
-  function cleanAuthParamsFromUrl() {
-    const url = new URL(window.location.href);
-    const v = getVParamOrDefault();
-    url.hash = "";
-    // Keep only ?v if present
-    url.search = v ? `?v=${encodeURIComponent(v)}` : "";
-    window.history.replaceState({}, document.title, url.toString());
-  }
-
-  async function finalizeFromUrl() {
-    const started = Date.now();
-    const hadParams = hasAuthParamsInUrl();
-    if (!hadParams) return { handled: false, session: null };
-
+  async function finalizeFromUrl(){
+    const had = hasAuthParamsInUrl();
+    if (!had) return { handled:false, session:null };
     console.groupCollapsed("[auth] finalizeFromUrl");
-    try {
-      const current = new URL(window.location.href);
-      const hashParams = parseHashParams();
+    try{
+      const url = new URL(window.location.href);
+      const hash = parseHashParams();
 
-      // 1) PKCE style: ?code=...
-      if (current.searchParams.has("code") && typeof supa.auth.exchangeCodeForSession === "function") {
-        const code = current.searchParams.get("code");
-        console.log("[auth] Detected PKCE code in URL. Exchanging for session…");
+      if (url.searchParams.has("code") && typeof supa.auth.exchangeCodeForSession === "function"){
+        const code = url.searchParams.get("code");
         const { data, error } = await supa.auth.exchangeCodeForSession(code);
-        if (error) {
-          console.error("[auth] exchangeCodeForSession error:", error);
-          cleanAuthParamsFromUrl();
-          return { handled: true, error, session: null };
-        }
-        console.log("[auth] Session established via PKCE.");
-        cleanAuthParamsFromUrl();
-        return { handled: true, session: data?.session || null };
+        if (error) { console.error("[auth] exchangeCodeForSession", error); cleanAuthParamsFromUrl(); return { handled:true, error, session:null }; }
+        cleanAuthParamsFromUrl(); return { handled:true, session:data?.session||null };
+      }
+      if (hash.has("access_token") && hash.has("refresh_token") && typeof supa.auth.setSession === "function"){
+        const { data, error } = await supa.auth.setSession({ access_token: hash.get("access_token"), refresh_token: hash.get("refresh_token") });
+        if (error) { console.error("[auth] setSession", error); cleanAuthParamsFromUrl(); return { handled:true, error, session:null }; }
+        cleanAuthParamsFromUrl(); return { handled:true, session:data?.session||null };
+      }
+      if ((url.searchParams.has("token") || url.searchParams.has("token_hash")) && typeof supa.auth.verifyOtp === "function"){
+        const token_hash = url.searchParams.get("token_hash") || url.searchParams.get("token");
+        const { data, error } = await supa.auth.verifyOtp({ token_hash, type:"email" });
+        if (error) { console.error("[auth] verifyOtp(token_hash)", error); cleanAuthParamsFromUrl(); return { handled:true, error, session:null }; }
+        cleanAuthParamsFromUrl(); return { handled:true, session:data?.session||null };
       }
 
-      // 2) Implicit flow: #access_token & #refresh_token in hash
-      if (hashParams.has("access_token") && hashParams.has("refresh_token") && typeof supa.auth.setSession === "function") {
-        const access_token = hashParams.get("access_token");
-        const refresh_token = hashParams.get("refresh_token");
-        console.log("[auth] Detected implicit tokens in hash. Setting session…");
-        const { data, error } = await supa.auth.setSession({ access_token, refresh_token });
-        if (error) {
-          console.error("[auth] setSession error:", error);
-          cleanAuthParamsFromUrl();
-          return { handled: true, error, session: null };
-        }
-        console.log("[auth] Session established via setSession.");
-        cleanAuthParamsFromUrl();
-        return { handled: true, session: data?.session || null };
-      }
-
-      // 3) Legacy/Template: ?token= / ?token_hash= (verify directly)
-      if ((current.searchParams.has("token") || current.searchParams.has("token_hash")) && typeof supa.auth.verifyOtp === "function") {
-        const token_hash = current.searchParams.get("token_hash") || current.searchParams.get("token");
-        console.log("[auth] Detected token_hash in URL. Verifying…");
-        const { data, error } = await supa.auth.verifyOtp({ token_hash, type: "email" }); // 'magiclink' deprecated in JS, use 'email'
-        if (error) {
-          console.error("[auth] verifyOtp (token_hash) error:", error);
-          cleanAuthParamsFromUrl();
-          return { handled: true, error, session: null };
-        }
-        console.log("[auth] Session established via verifyOtp(token_hash).");
-        cleanAuthParamsFromUrl();
-        return { handled: true, session: data?.session || null };
-      }
-
-      // If we got here with params but none matched, still clean to avoid loops.
-      console.warn("[auth] Auth params detected but no known handler matched. Cleaning URL to avoid loops.");
+      console.warn("[auth] Unknown auth params in URL; cleaning.");
       cleanAuthParamsFromUrl();
       const { data } = await supa.auth.getSession();
-      return { handled: true, session: data?.session || null };
-    } finally {
-      console.log("[auth] finalizeFromUrl took", Date.now() - started, "ms");
-      console.groupEnd();
-    }
+      return { handled:true, session:data?.session||null };
+    } finally { console.groupEnd(); }
   }
 
-  async function loginMagic(email) {
+  async function loginMagic(email){
     const redirectTo = new URL("validador.html", window.location.href).toString();
-    return await supa.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: redirectTo,
-      },
-    });
+    return await supa.auth.signInWithOtp({ email, options:{ shouldCreateUser:true, emailRedirectTo: redirectTo } });
   }
-
-  async function sendEmailOtp(email) {
-    // Sends email with both magic link and 6-digit OTP by default
-    return await supa.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-      },
-    });
+  async function sendEmailOtp(email){
+    return await supa.auth.signInWithOtp({ email, options:{ shouldCreateUser:true } });
   }
-
-  async function verifyCode(email, code) {
-    return await supa.auth.verifyOtp({ email, token: code, type: "email" });
+  async function verifyCode(email, code){
+    return await supa.auth.verifyOtp({ email, token: code, type:"email" });
   }
-
-  async function getSession() {
-    return await supa.auth.getSession();
-  }
-
-  async function logout() {
-    try {
-      await supa.auth.signOut();
-    } finally {
-      const url = new URL("login.html", window.location.href);
-      const v = getVParamOrDefault();
-      if (v) url.searchParams.set("v", v);
-      window.location.replace(url.toString());
+  async function getSession(){ return await supa.auth.getSession(); }
+  async function logout(){
+    try{ await supa.auth.signOut(); }
+    finally{
+      const u = new URL("login.html", window.location.href);
+      const v = vParam(); if (v) u.searchParams.set("v", v);
+      window.location.replace(u.toString());
     }
   }
 
-  // Expose for pages
-  window.SupaAuth = {
-    hasAuthParamsInUrl,
-    finalizeFromUrl,
-    loginMagic,
-    sendEmailOtp,
-    verifyCode,
-    getSession,
-    logout,
-  };
+  window.SupaAuth = { finalizeFromUrl, loginMagic, sendEmailOtp, verifyCode, getSession, logout };
 
-  // Fire a ready event
+  // ---- Back-compat alias expected by older pages (window.supa.*) ----
+  if (!window.supa) {
+    function pushLS(key, obj){
+      try{ const arr = JSON.parse(localStorage.getItem(key) || "[]"); arr.unshift(obj); localStorage.setItem(key, JSON.stringify(arr)); }
+      catch(e){ console.warn("[auth] localStorage push failed:", e); }
+    }
+    window.supa = {
+      ready: () => true,
+      loginMagic, sendEmailOtp, sendOtpOnly: sendEmailOtp, verifyCode, getSession,
+      getUser: async () => {
+        try { const { data } = await getSession(); return { user: data?.session?.user || null }; }
+        catch(e){ return { user: null }; }
+      },
+      logout,
+      saveHIN: async (obj) => {
+        const rec = {
+          ts: Date.now(),
+          win: obj?.hin || obj?.win || "TEST",
+          pre1998: !!obj?.pre1998,
+          ok: obj?.result_ok ?? true,
+          details: Array.isArray(obj?.details) ? obj.details.join(" • ") : (obj?.details || "diag"),
+          certNumber: obj?.cert || obj?.certNumber || "",
+          certIssuer: obj?.issuer || obj?.certIssuer || "",
+          photo: obj?.photo || null,
+        };
+        pushLS("hist_win", rec);
+        return { ok:true };
+      },
+      saveEngine: async (obj) => {
+        const rec = {
+          ts: Date.now(),
+          brand: obj?.brand || "DIAG",
+          model: obj?.payload?.model || obj?.model || "",
+          sn: obj?.payload?.sn || obj?.sn || "",
+          ok: obj?.result_ok ?? true,
+          details: Array.isArray(obj?.details) ? obj.details.join(" • ") : (obj?.details || "diag"),
+          photo: obj?.photo || null,
+        };
+        pushLS("hist_motor", rec);
+        return { ok:true };
+      },
+    };
+  }
+
+  // Announce ready
   document.dispatchEvent(new CustomEvent("supa:ready"));
 })();
