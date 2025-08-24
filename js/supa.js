@@ -2,22 +2,31 @@
 window.supa = (function () {
   const STORE_KEY = 'MIEC_CONFIG';
 
-  const read = () => {
-    try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }
-    catch { return {}; }
-  };
+  const read = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; } };
   const merge = (a, b) => Object.assign({}, a || {}, b || {});
   let base   = window.MIEC_CONFIG || {};
   let cfg    = merge(base, read());
   let client = null;
+
+  // controla se já finalizámos os tokens do URL (para evitar repetição)
+  let _redirectFinalized = false;
 
   const ready = () => !!init();
 
   function init() {
     if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return null;
     if (client) return client;
-    client = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-    // Tenta sempre finalizar sessão a partir do URL (hash ou query)
+
+    // ⚠️ opções para manter sessão e tratarmos o URL manualmente
+    client = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false, // nós tratamos no handleRedirect()
+      },
+    });
+
+    // tenta finalizar tokens do URL (não aguardado aqui)
     handleRedirect();
     return client;
   }
@@ -38,7 +47,7 @@ window.supa = (function () {
       if (p.get('access_token') && p.get('refresh_token')) {
         const { error } = await client.auth.setSession({
           access_token:  p.get('access_token'),
-          refresh_token: p.get('refresh_token')
+          refresh_token: p.get('refresh_token'),
         });
         if (error) console.warn('[MIEC] setSession:', error);
         history.replaceState({}, document.title, location.pathname);
@@ -68,6 +77,13 @@ window.supa = (function () {
     } catch (e) {
       console.warn('[MIEC] handleRedirect error:', e);
     }
+  }
+
+  // Permite às páginas AGUARDAREM a finalização dos tokens do URL
+  async function finalizeFromUrl(){
+    if (_redirectFinalized) return;
+    await handleRedirect();
+    _redirectFinalized = true;
   }
 
   // ---- Config helpers
@@ -101,7 +117,7 @@ window.supa = (function () {
     const redirectTo = computeRedirect(); // normalmente .../validador.html
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectTo, shouldCreateUser: true }
+      options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
     });
     if (error) throw error;
     return true;
@@ -114,28 +130,26 @@ window.supa = (function () {
     const { error } = await client.auth.verifyOtp({
       email,
       token: String(code || '').trim(),
-      type: 'email'
+      type: 'email',
     });
     if (error) throw error;
     return true;
   }
 
-  // Enviar código (OTP) por email — SEM redirect (não usa "resend")
+  // Enviar código (OTP) por email — SEM redirect
   async function sendEmailOtp(email){
     if(!ready()) throw new Error('Supabase not configured');
     try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true }   // sem emailRedirectTo => email com o código
+      options: { shouldCreateUser: true }, // sem emailRedirectTo => email com o código
     });
     if (error) throw error;
     return true;
   }
 
   // Alias para compatibilidade
-  async function sendOtpOnly(email){
-    return sendEmailOtp(email);
-  }
+  async function sendOtpOnly(email){ return sendEmailOtp(email); }
 
   async function logout() {
     if (!ready()) return;
@@ -189,10 +203,11 @@ window.supa = (function () {
     ready,
     getClient: () => init(),
     getUser,
+    finalizeFromUrl,   // << NOVO
     loginMagic,
-    verifyCode,       // valida código de 6 dígitos
-    sendEmailOtp,     // envia email com OTP (sem redirect)
-    sendOtpOnly,      // alias
+    verifyCode,        // valida código de 6 dígitos
+    sendEmailOtp,      // envia email com OTP (sem redirect)
+    sendOtpOnly,       // alias
     logout,
     saveHIN,
     listHIN,
@@ -200,6 +215,6 @@ window.supa = (function () {
     listEngine,
     getConfig,
     setConfig,
-    clearConfig
+    clearConfig,
   };
 })();
