@@ -9,11 +9,34 @@
 
 
 
-  <!-- Supabase SDK + config + auth core -->
+  <!-- Supabase SDK + config + auth core (pinned) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
   <script defer src="js/config.js?v=418"></script>
   <script defer src="js/supa.js?v=418"></script>
-  </head>
+  
+  <!-- Early session gate (runs before other scripts) -->
+  <script defer>
+  (async () => {
+    try {
+      const waitFor = async (cond, t = 3000) => {
+        const t0 = Date.now();
+        while (!cond()) {
+          if (Date.now() - t0 > t) break;
+          await new Promise(r => setTimeout(r, 20));
+        }
+      };
+      await waitFor(() => window.SupaAuth && window.SupaAuth.getSession);
+      if (window.SupaAuth && window.SupaAuth.finalizeFromUrl) {
+        await window.SupaAuth.finalizeFromUrl();
+      }
+      const res = await window.SupaAuth.getSession();
+      const sess = res?.data?.session || null;
+      if (!sess) location.replace('login.html?v=418');
+    } catch (e) { console.warn('[gate-early]', e); }
+  })();
+  </script>
+
+</head>
 <body>
   
   <header class="app-header">
