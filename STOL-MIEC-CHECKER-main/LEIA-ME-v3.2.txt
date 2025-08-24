@@ -1,0 +1,11 @@
+M.I.E.C. v3.2 — Maritime Identification & Engine Checker
+Data: 2025-08-20
+
+Novidades:
+- Tema Dia/Noite com persistência (localStorage 'theme').
+- Header unificado estilo GitHub, com logótipo PM (fornecido) e novo nome "M.I.E.C.".
+- Login sem referência a "WIN Validator".
+- Lista de marcas de motor expandida (Yamaha/Honda ativas; restantes marcadas "em breve").
+- Painel de Detalhe Forense mantido (integrado).
+
+Como alternar tema: botão 🌙/☀️ no header.

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico WIN</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  
+  <header class="app-header">
+    <div class="brand">
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
+      <div class="titles">
+        <h1>M.I.E.C.</h1>
+        <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
+      </div>
+    </div>
+    <nav class="header-actions">
+      <a class="btn" href="validador.html">Voltar ao Validador</a>
+      <button id="themeBtn" class="theme-toggle" title="Alternar tema">🌙/☀️</button>
+    </nav>
+  </header>
+
+
+  <main class="container">
+    <div class="table-wrap">
+      <table id="tblWin">
+        <thead>
+          <tr>
+            <th>Data<span class="sub-en">(Date)</span></th>
+            <th>HIN</th>
+            <th>Resultado<span class="sub-en">(Result)</span></th>
+            <th>Justificação<span class="sub-en">(Reason)</span></th>
+            <th>Certificado<span class="sub-en">(Certificate)</span></th>
+            <th>Entidade<span class="sub-en">(Issuer)</span></th>
+            <th>Foto<span class="sub-en">(Photo)</span></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script src="js/historico-win.js"></script>
+
+  <script>
+    (function(){
+      const saved = localStorage.getItem('theme') || 'dark';
+      const root = document.documentElement;
+      root.classList.remove('theme-dark','theme-light');
+      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
+      const btn = document.getElementById('themeBtn');
+      if(btn){
+        btn.addEventListener('click', ()=>{
+          const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
+          const next = curr==='light' ? 'dark' : 'light';
+          root.classList.toggle('theme-light');
+          root.classList.toggle('theme-dark');
+          localStorage.setItem('theme', next);
+        });
+      }
+    })();
+  </script>
+
+<footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.6 — 2025-08-23</p></footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=416"></script>
+<script src="js/supa.js?v=416"></script>
+<script>
+(function(){
+  const loginBtn=document.getElementById('loginBtn'); const logoutBtn=document.getElementById('logoutBtn');
+  async function refresh(){ try{ if(!window.supa?.ready()) return; const r = await window.supa.getUser(); const user=r&&r.user; if(loginBtn) loginBtn.textContent = user ? (user.email||'Sessão ativa') : 'Entrar'; if(window.MIEC_updateCloudStatus) window.MIEC_updateCloudStatus(); }catch(e){} }
+  loginBtn?.addEventListener('click',async()=>{ try{ const em=document.getElementById('loginEmail').value.trim(); if(!em){ alert('Introduza email.'); return; } await window.supa.loginMagic(em); alert('Verifique email para entrar.'); }catch(e){ alert('Falha login: '+(e.message||e)); } });
+  logoutBtn?.addEventListener('click',async()=>{ try{ await window.supa.logout(); alert('Sessão terminada.'); refresh(); }catch(e){} });
+  setTimeout(refresh, 600);
+})();
+</script>
+<script src="js/cloud-diag.js?v=416"></script>
+
+</body>
+</html>

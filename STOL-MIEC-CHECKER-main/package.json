@@ -1,0 +1,25 @@
+{
+  "name": "miec",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-html": "^7.1.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2021,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "html"
+    ],
+    "rules": {}
+  }
+}
