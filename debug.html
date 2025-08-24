@@ -1,19 +1,92 @@
-<!doctype html><meta charset="utf-8"><title>MIEC Debug</title>
-<h1>MIEC Cloud Debug</h1>
-<button id="btn">Check</button>
-<pre id="out"></pre>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="js/config.js?v=416"></script>
-<script src="js/supa.js?v=416"></script>
-<script>
-document.getElementById('btn').onclick = async ()=>{
-  const out=document.getElementById('out');
-  out.textContent = 'ready: ' + (!!window.supa && window.supa.ready()) + '\n';
-  try{
-    const r = await window.supa.getUser();
-    out.textContent += 'getUser: ' + JSON.stringify(r, null, 2);
-  }catch(e){
-    out.textContent += 'getUser error: ' + (e.message||e);
-  }
-};
-</script>
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>M.I.E.C. • Debug Auth</title>
+  <link rel="stylesheet" href="css/styles.css?v=417" />
+  <!-- Supabase CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/config.js?v=417"></script>
+  <script defer src="js/supa.js?v=417"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; padding: 24px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    input[type="email"], input[type="text"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e7eb; min-width: 260px; }
+    button { padding: 10px 14px; border-radius: 12px; border: 1px solid #d1d5db; cursor: pointer; }
+    pre { background: #0b1021; color: #fff; padding: 12px; border-radius: 10px; overflow: auto; }
+    small.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color: #6b7280; }
+    .ok { color: #065f46; }
+    .warn { color: #92400e; }
+    .err { color: #991b1b; }
+  </style>
+</head>
+<body>
+  <h1>M.I.E.C. <small class="mono">/debug.html</small></h1>
+  <div class="card">
+    <div class="row">
+      <input id="email" type="email" placeholder="email@exemplo.pt" />
+      <input id="otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="código 6 dígitos" />
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="btn-magic">Enviar Magic Link</button>
+      <button id="btn-send-otp">Enviar OTP</button>
+      <button id="btn-verify">Entrar com código</button>
+      <button id="btn-session">Ver sessão</button>
+      <button id="btn-logout">Logout</button>
+      <a href="validador.html?v=417"><button>Abrir Validador</button></a>
+    </div>
+  </div>
+
+  <div class="card">
+    <strong>Log</strong>
+    <pre id="log">ready…</pre>
+  </div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const log = (...args) => { logEl.textContent += "\n" + args.map(a => typeof a === 'string' ? a : JSON.stringify(a, null, 2)).join(' '); };
+
+    document.getElementById('btn-magic').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      if (!email) return alert('Indica um email');
+      const { data, error } = await window.SupaAuth.loginMagic(email);
+      log(error ? '❌ magic link erro:' : '✅ magic link ok:', error || data);
+      alert(error ? 'Erro a enviar magic link' : 'Magic link enviado. Verifica o teu email.');
+    });
+
+    document.getElementById('btn-send-otp').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      if (!email) return alert('Indica um email');
+      const { data, error } = await window.SupaAuth.sendEmailOtp(email);
+      log(error ? '❌ OTP erro:' : '✅ OTP enviado:', error || data);
+      alert(error ? 'Erro a enviar código' : 'Código enviado. Introduz em "código 6 dígitos".');
+    });
+
+    document.getElementById('btn-verify').addEventListener('click', async () => {
+      const email = document.getElementById('email').value.trim();
+      const code = document.getElementById('otp').value.trim();
+      if (!email || !code) return alert('Indica email e código.');
+      const { data, error } = await window.SupaAuth.verifyCode(email, code);
+      log(error ? '❌ verify erro:' : '✅ verify ok:', error || data);
+      if (!error) window.location.assign('validador.html?v=417');
+    });
+
+    document.getElementById('btn-session').addEventListener('click', async () => {
+      const { data, error } = await window.SupaAuth.getSession();
+      log(error ? '❌ sessão erro:' : 'ℹ️ sessão:', error || data);
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await window.SupaAuth.logout();
+    });
+
+    document.addEventListener('supa:ready', () => log('supa:ready'));
+    (async () => {
+      const res = await window.SupaAuth.finalizeFromUrl();
+      if (res?.handled) log('finalizeFromUrl handled:', res);
+    })();
+  </script>
+</body>
+</html>

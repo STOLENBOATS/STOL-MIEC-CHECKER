@@ -1,220 +1,188 @@
-// Supabase helper (strong redirect + finalize session from URL)
-window.supa = (function () {
-  const STORE_KEY = 'MIEC_CONFIG';
+/* M.I.E.C. supa.js (auth gate patch 418)
+   - Robust finalizeFromUrl(): handles PKCE (?code=), implicit (#access_token) and legacy (?token / token_hash) flows
+   - Cleans URL after processing (preserves ?v query if present)
+   - Exposes helpers on window.SupaAuth
+   Requirements:
+     - Load order on pages that use it:
+       1) @supabase/supabase-js v2 CDN
+       2) js/config.js  (defines SUPABASE_URL, SUPABASE_ANON_KEY)
+       3) js/supa.js    (this file)
+*/
+(function () {
+  if (window.__MIEC_SUPA_INIT__) return;
+  window.__MIEC_SUPA_INIT__ = true;
 
-  const read = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; } };
-  const merge = (a, b) => Object.assign({}, a || {}, b || {});
-  let base   = window.MIEC_CONFIG || {};
-  let cfg    = merge(base, read());
-  let client = null;
+  if (typeof window.SUPABASE_URL === "undefined" || typeof window.SUPABASE_ANON_KEY === "undefined") {
+    console.error("[auth] Missing SUPABASE_URL / SUPABASE_ANON_KEY. Check js/config.js");
+    return;
+  }
 
-  // controla se já finalizámos os tokens do URL (para evitar repetição)
-  let _redirectFinalized = false;
+  // Create client with explicit settings used in this project
+  const supa = window.supabase?.createClient
+    ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false, // we handle it manually
+        },
+      })
+    : null;
 
-  const ready = () => !!init();
+  if (!supa) {
+    console.error("[auth] Supabase client not found. Ensure the CDN script is loaded before supa.js");
+    return;
+  }
 
-  function init() {
-    if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return null;
-    if (client) return client;
+  // ---- utilities ----
+  function getVParamOrDefault() {
+    const url = new URL(window.location.href);
+    return url.searchParams.get("v") || "417"; // keep current project default unless caller forces another
+  }
 
-    // ⚠️ opções para manter sessão e tratarmos o URL manualmente
-    client = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: false, // nós tratamos no handleRedirect()
+  function hasAuthParamsInUrl() {
+    const u = new URL(window.location.href);
+    const hash = u.hash || "";
+    // PKCE / Recovery / Email change (query param "code")
+    if (u.searchParams.has("code")) return true;
+    // Legacy token hash variants from templates
+    if (u.searchParams.has("token") || u.searchParams.has("token_hash")) return true;
+    // Implicit flow puts tokens in the hash
+    if (hash.includes("access_token") || hash.includes("refresh_token")) return true;
+    return false;
+  }
+
+  function parseHashParams() {
+    const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+    return new URLSearchParams(hash);
+  }
+
+  function cleanAuthParamsFromUrl() {
+    const url = new URL(window.location.href);
+    const v = getVParamOrDefault();
+    url.hash = "";
+    // Keep only ?v if present
+    url.search = v ? `?v=${encodeURIComponent(v)}` : "";
+    window.history.replaceState({}, document.title, url.toString());
+  }
+
+  async function finalizeFromUrl() {
+    const started = Date.now();
+    const hadParams = hasAuthParamsInUrl();
+    if (!hadParams) return { handled: false, session: null };
+
+    console.groupCollapsed("[auth] finalizeFromUrl");
+    try {
+      const current = new URL(window.location.href);
+      const hashParams = parseHashParams();
+
+      // 1) PKCE style: ?code=...
+      if (current.searchParams.has("code") && typeof supa.auth.exchangeCodeForSession === "function") {
+        const code = current.searchParams.get("code");
+        console.log("[auth] Detected PKCE code in URL. Exchanging for session…");
+        const { data, error } = await supa.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error("[auth] exchangeCodeForSession error:", error);
+          cleanAuthParamsFromUrl();
+          return { handled: true, error, session: null };
+        }
+        console.log("[auth] Session established via PKCE.");
+        cleanAuthParamsFromUrl();
+        return { handled: true, session: data?.session || null };
+      }
+
+      // 2) Implicit flow: #access_token & #refresh_token in hash
+      if (hashParams.has("access_token") && hashParams.has("refresh_token") && typeof supa.auth.setSession === "function") {
+        const access_token = hashParams.get("access_token");
+        const refresh_token = hashParams.get("refresh_token");
+        console.log("[auth] Detected implicit tokens in hash. Setting session…");
+        const { data, error } = await supa.auth.setSession({ access_token, refresh_token });
+        if (error) {
+          console.error("[auth] setSession error:", error);
+          cleanAuthParamsFromUrl();
+          return { handled: true, error, session: null };
+        }
+        console.log("[auth] Session established via setSession.");
+        cleanAuthParamsFromUrl();
+        return { handled: true, session: data?.session || null };
+      }
+
+      // 3) Legacy/Template: ?token= / ?token_hash= (verify directly)
+      if ((current.searchParams.has("token") || current.searchParams.has("token_hash")) && typeof supa.auth.verifyOtp === "function") {
+        const token_hash = current.searchParams.get("token_hash") || current.searchParams.get("token");
+        console.log("[auth] Detected token_hash in URL. Verifying…");
+        const { data, error } = await supa.auth.verifyOtp({ token_hash, type: "email" }); // 'magiclink' deprecated in JS, use 'email'
+        if (error) {
+          console.error("[auth] verifyOtp (token_hash) error:", error);
+          cleanAuthParamsFromUrl();
+          return { handled: true, error, session: null };
+        }
+        console.log("[auth] Session established via verifyOtp(token_hash).");
+        cleanAuthParamsFromUrl();
+        return { handled: true, session: data?.session || null };
+      }
+
+      // If we got here with params but none matched, still clean to avoid loops.
+      console.warn("[auth] Auth params detected but no known handler matched. Cleaning URL to avoid loops.");
+      cleanAuthParamsFromUrl();
+      const { data } = await supa.auth.getSession();
+      return { handled: true, session: data?.session || null };
+    } finally {
+      console.log("[auth] finalizeFromUrl took", Date.now() - started, "ms");
+      console.groupEnd();
+    }
+  }
+
+  async function loginMagic(email) {
+    const redirectTo = new URL("validador.html", window.location.href).toString();
+    return await supa.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: redirectTo,
       },
     });
-
-    // tenta finalizar tokens do URL (não aguardado aqui)
-    handleRedirect();
-    return client;
   }
 
-  // -- Finaliza sessão a partir do URL (v2: setSession / verifyOtp / exchangeCodeForSession)
-  async function handleRedirect() {
-    const getParams = () => {
-      const qs  = location.search && location.search.slice(1);
-      const hs  = location.hash   && location.hash.slice(1);
-      const raw = hs || qs || '';
-      return new URLSearchParams(raw);
-    };
-
-    try {
-      const p = getParams();
-
-      // 1) hash com access_token/refresh_token
-      if (p.get('access_token') && p.get('refresh_token')) {
-        const { error } = await client.auth.setSession({
-          access_token:  p.get('access_token'),
-          refresh_token: p.get('refresh_token'),
-        });
-        if (error) console.warn('[MIEC] setSession:', error);
-        history.replaceState({}, document.title, location.pathname);
-        if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
-        return;
-      }
-
-      // 2) magic link v2: token_hash (+ opcional type=magiclink)
-      if (p.get('token_hash')) {
-        const type  = p.get('type') || 'magiclink';
-        const email = (localStorage.getItem('MIEC_LAST_EMAIL') || '').trim() || undefined;
-        const { error } = await client.auth.verifyOtp({ type, token_hash: p.get('token_hash'), email });
-        if (error) console.warn('[MIEC] verifyOtp:', error);
-        history.replaceState({}, document.title, location.pathname);
-        if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
-        return;
-      }
-
-      // 3) fluxo com ?code=... (PKCE/OAuth)
-      if (p.get('code')) {
-        const { error } = await client.auth.exchangeCodeForSession(p.get('code'));
-        if (error) console.warn('[MIEC] exchangeCodeForSession:', error);
-        history.replaceState({}, document.title, location.pathname);
-        if (window.MIEC_updateCloudStatus) try { window.MIEC_updateCloudStatus(); } catch(_) {}
-        return;
-      }
-    } catch (e) {
-      console.warn('[MIEC] handleRedirect error:', e);
-    }
-  }
-
-  // Permite às páginas AGUARDAREM a finalização dos tokens do URL
-  async function finalizeFromUrl(){
-    if (_redirectFinalized) return;
-    await handleRedirect();
-    _redirectFinalized = true;
-  }
-
-  // ---- Config helpers
-  function getConfig()  { return Object.assign({}, cfg); }
-  function setConfig(c) { localStorage.setItem(STORE_KEY, JSON.stringify(c || {})); cfg = merge(base, c || {}); client = null; init(); return getConfig(); }
-  function clearConfig(){ localStorage.removeItem(STORE_KEY); cfg = base; client = null; init(); return getConfig(); }
-
-  // ---- Auth helpers
-  async function getUser() {
-    if (!ready()) return { user: null };
-    return await client.auth.getUser();
-  }
-
-  function computeRedirect() {
-    const origin = location.origin;
-    const base   = location.pathname.replace(/[^/]*$/, '');
-    return origin + base + 'validador.html';
-  }
-
-  // Link mágico (envio + redirect para validador)
-  async function loginMagic(email) {
-    if (!ready()) throw new Error('Supabase not configured');
-    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email || '').trim()); } catch (_) {}
-
-    if (cfg.ALLOW_DOMAIN) {
-      const d = (email.split('@')[1] || '').toLowerCase();
-      if (d !== String(cfg.ALLOW_DOMAIN).toLowerCase())
-        throw new Error(`Email deve terminar em @${cfg.ALLOW_DOMAIN}`);
-    }
-
-    const redirectTo = computeRedirect(); // normalmente .../validador.html
-    const { error } = await client.auth.signInWithOtp({
+  async function sendEmailOtp(email) {
+    // Sends email with both magic link and 6-digit OTP by default
+    return await supa.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+      },
     });
-    if (error) throw error;
-    return true;
   }
 
-  // Plano B: validar OTP de 6 dígitos do email
   async function verifyCode(email, code) {
-    if (!ready()) throw new Error('Supabase not configured');
-    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email || '').trim()); } catch (_) {}
-    const { error } = await client.auth.verifyOtp({
-      email,
-      token: String(code || '').trim(),
-      type: 'email',
-    });
-    if (error) throw error;
-    return true;
+    return await supa.auth.verifyOtp({ email, token: code, type: "email" });
   }
 
-  // Enviar código (OTP) por email — SEM redirect
-  async function sendEmailOtp(email){
-    if(!ready()) throw new Error('Supabase not configured');
-    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
-    const { error } = await client.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true }, // sem emailRedirectTo => email com o código
-    });
-    if (error) throw error;
-    return true;
+  async function getSession() {
+    return await supa.auth.getSession();
   }
-
-  // Alias para compatibilidade
-  async function sendOtpOnly(email){ return sendEmailOtp(email); }
 
   async function logout() {
-    if (!ready()) return;
-    await client.auth.signOut();
+    try {
+      await supa.auth.signOut();
+    } finally {
+      const url = new URL("login.html", window.location.href);
+      const v = getVParamOrDefault();
+      if (v) url.searchParams.set("v", v);
+      window.location.replace(url.toString());
+    }
   }
 
-  // ---- Persistência (HIN / Engines)
-  async function saveHIN(rec) {
-    if (!ready()) return { skipped: true };
-    const { data: { user } } = await client.auth.getUser();
-    if (!user) throw new Error('Não autenticado');
-    rec.user_id = user.id; rec.user_email = user.email || null;
-    const { error } = await client.from('hin_validations').insert(rec);
-    if (error) throw error;
-    return true;
-  }
-
-  async function listHIN(limit = 100) {
-    if (!ready()) return [];
-    const { data, error } = await client
-      .from('hin_validations')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data || [];
-  }
-
-  async function saveEngine(rec) {
-    if (!ready()) return { skipped: true };
-    const { data: { user } } = await client.auth.getUser();
-    if (!user) throw new Error('Não autenticado');
-    rec.user_id = user.id; rec.user_email = user.email || null;
-    const { error } = await client.from('engine_validations').insert(rec);
-    if (error) throw error;
-    return true;
-  }
-
-  async function listEngine(limit = 100) {
-    if (!ready()) return [];
-    const { data, error } = await client
-      .from('engine_validations')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data || [];
-  }
-
-  return {
-    ready,
-    getClient: () => init(),
-    getUser,
-    finalizeFromUrl,   // << NOVO
+  // Expose for pages
+  window.SupaAuth = {
+    hasAuthParamsInUrl,
+    finalizeFromUrl,
     loginMagic,
-    verifyCode,        // valida código de 6 dígitos
-    sendEmailOtp,      // envia email com OTP (sem redirect)
-    sendOtpOnly,       // alias
+    sendEmailOtp,
+    verifyCode,
+    getSession,
     logout,
-    saveHIN,
-    listHIN,
-    saveEngine,
-    listEngine,
-    getConfig,
-    setConfig,
-    clearConfig,
   };
+
+  // Fire a ready event
+  document.dispatchEvent(new CustomEvent("supa:ready"));
 })();
