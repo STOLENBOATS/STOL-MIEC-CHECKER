@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.I.E.C. • Validador</title>
   <link rel="stylesheet" href="css/styles.css">
+
+<script defer src="js/config.js?v=418"></script>
+<script defer src="js/supa.js?v=418"></script>
 </head>
 <body>
   
@@ -106,13 +109,13 @@
   </main>
 
   <footer class="footer muted">
-    <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.7 — 2025-08-24</p>
+    <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.8 — 2025-08-24</p>
   </footer>
 
   <!-- ORDEM CORRETA DOS SCRIPTS: Supabase + config + supa, depois GATE, e só depois o resto -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2.56.0.56.0"></script>
-  <script src="js/config.js?v=418"></script>
-  <script src="js/supa.js?v=418"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  
+  
 
   <!-- GATE: Finaliza tokens do URL e só redireciona se continuar sem sessão -->
   <script>
@@ -186,5 +189,20 @@
 
   <!-- Opcional: diagnósticos de cloud -->
   <script src="js/cloud-diag.js?v=418"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.__MIEC_GATE_RUN__) return; window.__MIEC_GATE_RUN__ = true;
+  try {
+    if (window.SupaAuth && window.SupaAuth.finalizeFromUrl) {
+      await window.SupaAuth.finalizeFromUrl();
+    }
+    const res = await (window.SupaAuth ? window.SupaAuth.getSession() : { data: null });
+    const sess = res?.data?.session || null;
+    if (!sess) { location.replace('login.html?v=418'); }
+  } catch(e){ console.warn('[gate]', e); }
+});
+</script>
+
 </body>
 </html>

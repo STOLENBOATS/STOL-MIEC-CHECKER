@@ -15,7 +15,7 @@ label{font-weight:600}input[type=text],input[type=password]{width:100%;padding:1
 <div class="row"><label>Domínio permitido</label><input id="domain" type="text" placeholder="pm.pt (opcional)"></div>
 <div class="btns"><button class="btn" id="testBtn">Testar ligação</button><button class="btn" id="saveBtn">Guardar</button><button class="btn" id="clearBtn">Limpar</button><a class="btn" href="validador.html">Voltar</a></div>
 <div id="out" class="muted"></div><p class="note muted">Guarda no <code>localStorage</code> em <code>MIEC_CONFIG</code>. A app lê estes valores automaticamente.</p></div></div>
-<script src="https://unpkg.com/@supabase/supabase-js@2.56.0.56.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
 <script>const STORE_KEY='MIEC_CONFIG';const $=s=>document.querySelector(s);const msg=(t,c='muted')=>{const o=$('#out');o.className=c;o.textContent=t;};
 (function(){try{const b=(window.MIEC_CONFIG||{});const s=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');const cfg=Object.assign({},b,s);
 $('#url').value=cfg.SUPABASE_URL||'';$('#key').value=cfg.SUPABASE_ANON_KEY||'';$('#bucket').value=cfg.STORAGE_BUCKET||'photos';$('#domain').value=cfg.ALLOW_DOMAIN||'';}catch(e){}})();
