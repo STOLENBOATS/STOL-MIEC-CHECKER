@@ -1,22 +1,15 @@
-/* compat-bridge.js (v418)
-   Ensures legacy window.supa.* API is present even if pages call it before supa.js finishes booting.
-   It proxies to window.SupaAuth once available.
-*/
+/* compat-bridge.js (v418b) */
 (function(){
   function install(){
     if (!window.supa) {
       window.supa = {
-        // Proxies that fail gracefully if SupaAuth not ready
-        loginMagic: (...args) => window.SupaAuth ? window.SupaAuth.loginMagic(...args) : Promise.reject(new Error("Auth not ready")),
-        sendEmailOtp: (...args) => window.SupaAuth ? window.SupaAuth.sendEmailOtp(...args) : Promise.reject(new Error("Auth not ready")),
-        sendOtpOnly: (...args) => window.SupaAuth ? window.SupaAuth.sendEmailOtp(...args) : Promise.reject(new Error("Auth not ready")),
-        verifyCode: (...args) => window.SupaAuth ? window.SupaAuth.verifyCode(...args) : Promise.reject(new Error("Auth not ready")),
-        getSession: (...args) => window.SupaAuth ? window.SupaAuth.getSession(...args) : Promise.resolve({ data:null }),
-        getUser: async () => {
-          try { const { data } = await (window.SupaAuth ? window.SupaAuth.getSession() : Promise.resolve({ data: null })); return { user: data?.session?.user || null }; }
-          catch (e) { return { user: null }; }
-        },
-        logout: (...args) => window.SupaAuth ? window.SupaAuth.logout(...args) : null,
+        loginMagic: (...a)=>window.SupaAuth?window.SupaAuth.loginMagic(...a):Promise.reject(new Error("Auth not ready")),
+        sendEmailOtp: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
+        sendOtpOnly: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
+        verifyCode: (...a)=>window.SupaAuth?window.SupaAuth.verifyCode(...a):Promise.reject(new Error("Auth not ready")),
+        getSession: (...a)=>window.SupaAuth?window.SupaAuth.getSession(...a):Promise.resolve({data:null}),
+        getUser: async ()=>{ try{const {data}=await(window.SupaAuth?window.SupaAuth.getSession():Promise.resolve({data:null})); return {user:data?.session?.user||null};}catch(e){return{user:null}}},
+        logout: (...a)=>window.SupaAuth?window.SupaAuth.logout(...a):null,
       };
     }
   }
