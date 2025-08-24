@@ -1,17 +1,30 @@
-const NAV={BUILD:'N.A.V 2.2.2 FALLBACK',STORAGE:{SESSION:'nav_session',WIN_HISTORY:'winHistory',MOTOR_HISTORY:'motorHistory'},THEME_KEY:'nav_theme'};
+/* M.I.E.C. js/config.js — hardfix v418
+   Exports Supabase credentials to globals from localStorage (MIEC_CONFIG) or existing consts.
+   This must load BEFORE js/supa.js.
+*/
+(function () {
+  try {
+    // If developer defined consts somewhere else, promote to window.*
+    if (!window.SUPABASE_URL && typeof SUPABASE_URL !== "undefined") window.SUPABASE_URL = SUPABASE_URL;
+    if (!window.SUPABASE_ANON_KEY && typeof SUPABASE_ANON_KEY !== "undefined") window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
 
-// --- MIEC globals shim (v418b): expose Supabase URL/KEY on window ---
-(function(){
-  try{
-    // From existing globals/constants if present
-    if (!window.SUPABASE_URL && typeof SUPABASE_URL !== "undefined") { window.SUPABASE_URL = SUPABASE_URL; }
-    if (!window.SUPABASE_ANON_KEY && typeof SUPABASE_ANON_KEY !== "undefined") { window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY; }
+    // Try to read from localStorage (saved in config.html)
+    var cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem("MIEC_CONFIG") || "{}"); } catch (e) {}
 
-    // From localStorage (MIEC_CONFIG) if still missing
+    if (!window.SUPABASE_URL && cfg.url) window.SUPABASE_URL = cfg.url;
+    if (!window.SUPABASE_ANON_KEY && cfg.anonKey) window.SUPABASE_ANON_KEY = cfg.anonKey;
+
+    // Optional extras
+    if (cfg.bucket) window.MIEC_BUCKET = cfg.bucket;
+    if (cfg.allowDomain) window.MIEC_ALLOW_DOMAIN = cfg.allowDomain;
+
     if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-      const conf = JSON.parse(localStorage.getItem("MIEC_CONFIG") || "{}");
-      if (conf.url && !window.SUPABASE_URL) window.SUPABASE_URL = conf.url;
-      if (conf.anonKey && !window.SUPABASE_ANON_KEY) window.SUPABASE_ANON_KEY = conf.anonKey;
+      console.warn("[config] SUPABASE_URL/ANON_KEY missing — abre config.html e clica 'Guardar'.");
+    } else {
+      console.log("[config] Supabase config OK (via", cfg.url ? "localStorage" : "globals", ").");
     }
-  }catch(e){ console.warn("[config] shim failed", e); }
+  } catch (e) {
+    console.warn("[config] shim failed:", e);
+  }
 })();
