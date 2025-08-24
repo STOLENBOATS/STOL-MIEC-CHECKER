@@ -87,7 +87,7 @@ window.supa = (function () {
     return origin + base + 'validador.html';
   }
 
-  // Link mágico (envio)
+  // Link mágico (envio + redirect para validador)
   async function loginMagic(email) {
     if (!ready()) throw new Error('Supabase not configured');
     try { localStorage.setItem('MIEC_LAST_EMAIL', String(email || '').trim()); } catch (_) {}
@@ -120,25 +120,21 @@ window.supa = (function () {
     return true;
   }
 
-  // Forçar envio do email APENAS com o código (OTP) — usa auth.resend
+  // Enviar código (OTP) por email — SEM redirect (não usa "resend")
   async function sendEmailOtp(email){
-    if(!ready()) throw new Error('Supabase not configured');
-    try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
-    const { error } = await client.auth.resend({ type: 'email_otp', email });
-    if (error) throw error;
-    return true;
-  }
-
-  // Alternativa: enviar OTP sem redirect (útil se resend não estiver disponível)
-  async function sendOtpOnly(email){
     if(!ready()) throw new Error('Supabase not configured');
     try { localStorage.setItem('MIEC_LAST_EMAIL', String(email||'').trim()); } catch(_){}
     const { error } = await client.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true } // sem emailRedirectTo => normalmente envia só o código
+      options: { shouldCreateUser: true }   // sem emailRedirectTo => email com o código
     });
     if (error) throw error;
     return true;
+  }
+
+  // Alias para compatibilidade
+  async function sendOtpOnly(email){
+    return sendEmailOtp(email);
   }
 
   async function logout() {
@@ -195,8 +191,8 @@ window.supa = (function () {
     getUser,
     loginMagic,
     verifyCode,       // valida código de 6 dígitos
-    sendEmailOtp,     // força envio do email OTP (resend)
-    sendOtpOnly,      // alternativa via signInWithOtp sem redirect
+    sendEmailOtp,     // envia email com OTP (sem redirect)
+    sendOtpOnly,      // alias
     logout,
     saveHIN,
     listHIN,
