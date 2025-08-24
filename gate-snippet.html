@@ -1,0 +1,28 @@
+  <!-- Early session gate: runs BEFORE any other page scripts -->
+  <script defer>
+  (async () => {
+    try {
+      // Wait for SupaAuth to load (in case of slow networks)
+      const waitFor = async (cond, t = 3000) => {
+        const started = Date.now();
+        while (!cond()) {
+          if (Date.now() - started > t) break;
+          await new Promise(r => setTimeout(r, 20));
+        }
+      };
+      await waitFor(() => window.SupaAuth && window.SupaAuth.getSession);
+
+      if (window.SupaAuth && window.SupaAuth.finalizeFromUrl) {
+        await window.SupaAuth.finalizeFromUrl();
+      }
+      const res = await window.SupaAuth.getSession();
+      const sess = res?.data?.session || null;
+      if (!sess) {
+        location.replace('login.html?v=418');
+      }
+      // else: keep the user on validador (session ok)
+    } catch (e) {
+      console.warn('[gate-early] ', e);
+    }
+  })();
+  </script>
