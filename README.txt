@@ -1,14 +1,17 @@
-M.I.E.C. – UI Hotfix (v420)
+Validador Early Gate (v420)
 
 Ficheiros:
-- js/ui-hotfix.js  → força favicon (images/favicon.png), marca [data-cloud] e garante que o botão "Ir para o Validador" abre validador.html?v=418
-- validador-favicon-snippet.html → pequeno excerto para colar no <head> do validador.html, caso ainda não tenha o favicon
+- js/validator-gate.js  → processa os tokens da URL, cria/persiste a sessão, limpa a URL e só depois deixa a página continuar (senão volta ao login).
+- head-snippet.html     → bloco para inserir no <head> do validador.html, o mais cedo possível.
 
 Como aplicar:
-1) Faça upload de js/ui-hotfix.js para a pasta /js do repositório.
-2) No login.html, adicione no fim do <head>:
-   <script defer src="js/ui-hotfix.js?v=420"></script>
-3) (Opcional) No validador.html, adicione no <head> a linha do favicon (conteúdo de validador-favicon-snippet.html). 
-   Não altera mais nada do validador.
+1) Faça upload de js/validator-gate.js para a pasta /js do repositório.
+2) No validador.html, INSIRA no <head>, idealmente antes de outros scripts, o conteúdo de head-snippet.html:
+   <link rel="icon" ...>
+   <script defer src="js/auth-boot.js?v=420"></script>
+   <script defer src="js/validator-gate.js?v=420"></script>
 
-Depois faça hard refresh (Ctrl/Cmd+F5).
+Notas:
+- O gate chama sempre SupaAuth.finalizeFromUrl(...). Se não houver tokens, é no-op.
+- Em caso de sessão ausente após o processamento, redireciona para login.html?v=418.
+- Usa auth-boot.js para garantir SDK/config/supa se por algum motivo não tiverem sido carregados.
