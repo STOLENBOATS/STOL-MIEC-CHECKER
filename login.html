@@ -24,7 +24,12 @@
     footer{margin-top:14px;text-align:center;color:var(--muted);font-size:14px}
   </style>
 
-  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <!-- Auth bootstrap + compat alias (must be early) -->
+  <script defer src="js/auth-boot.js?v=420"></script>
+  <script defer src="js/compat-bridge.js?v=419"></script>
+  <!-- Page script(s) -->
+  <script defer src="js/cloud-diag.js?v=419"></script>
+
 </head>
 <body>
   <div class="wrap"><div class="card">
@@ -64,7 +69,7 @@
     <p id="out" class="muted" style="margin-top:10px"></p>
 
     <footer>
-      © Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.8 — 2025-08-23
+      © Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.6 — 2025-08-23
     </footer>
 
   </div></div>
@@ -152,7 +157,7 @@
     setTimeout(refresh, 500);
   </script>
 
-  <script src="js/cloud-diag.js?v=418"></script>
+  
 </body>
 </html>
 
