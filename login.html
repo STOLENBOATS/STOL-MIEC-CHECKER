@@ -2,45 +2,157 @@
 <html lang="pt">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>M.I.E.C. • Login</title>
-  <link rel="stylesheet" href="css/styles.css?v=418" />
+  <style>
+    :root{--bg:#f6f8fc;--card:#fff;--border:#e5e9f2;--text:#0b1220;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Arial}
+    .wrap{min-height:100svh;display:grid;place-items:center;padding:24px}
+    .card{width:min(760px,100%);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+    h1{margin:0 0 4px;font-size:36px}
+    .sub{color:var(--muted);margin:0 0 18px;font-size:18px}
+    .topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1))}
+    label{font-weight:600;display:block;margin:10px 0 6px}
+    input[type=email],input[type=text]{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+    .btn{border:1px solid var(--border);background:#eef3ff;padding:10px 14px;border-radius:12px;cursor:pointer}
+    .link{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid var(--border);text-decoration:none;color:inherit;background:#f3f4f7}
+    .muted{color:var(--muted)} .ok{color:#0a7} .bad{color:#c33} .warn{color:#b58900}
+    footer{margin-top:14px;text-align:center;color:var(--muted);font-size:14px}
+  </style>
+
   <link rel="icon" type="image/png" href="images/favicon.png" />
-  <!-- Core scripts -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-  <script defer src="js/config.js?v=418"></script>
-  <script defer src="js/supa.js?v=418"></script>
-
-  <!-- INLINE compat bridge: guarantees window.supa.* exists even if external compat file is missing -->
-  <script>
-  (function(){
-    function install(){
-      if (!window.supa) {
-        window.supa = {
-          loginMagic: (...a)=>window.SupaAuth?window.SupaAuth.loginMagic(...a):Promise.reject(new Error("Auth not ready")),
-          sendEmailOtp: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
-          sendOtpOnly: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
-          verifyCode: (...a)=>window.SupaAuth?window.SupaAuth.verifyCode(...a):Promise.reject(new Error("Auth not ready")),
-          getSession: (...a)=>window.SupaAuth?window.SupaAuth.getSession(...a):Promise.resolve({data:null}),
-          getUser: async ()=>{ try{ const {data}=await(window.SupaAuth?window.SupaAuth.getSession():Promise.resolve({data:null})); return {user:data?.session?.user||null}; }catch(e){ return {user:null}; } },
-          logout: (...a)=>window.SupaAuth?window.SupaAuth.logout(...a):null,
-        };
-      }
-    }
-    install();
-    document.addEventListener("supa:ready", install);
-  })();
-  </script>
-
-  <!-- Page scripts (your existing logic) -->
-  <script defer src="js/cloud-diag.js?v=418"></script>
 </head>
 <body>
-  <!-- O teu markup original deve permanecer no ficheiro do repo. 
-       Este template é apenas para garantir a ordem e a ponte inline. -->
-  <div style="max-width:760px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:16px">
-    <h1>M.I.E.C. • Login</h1>
-    <p>Se estiveres a ver isto, o teu login.html do repo não foi usado. Podes copiar apenas a parte do <head>.</p>
-  </div>
+  <div class="wrap"><div class="card">
+
+    <div class="topline">
+      <div class="brand">
+        <img src="img/pm-logo.jpg" alt="PM">
+        <div>
+          <h1>M.I.E.C.</h1>
+          <p class="sub">Maritime Identification &amp; Engine Checker</p>
+        </div>
+      </div>
+      <div id="cloudStatus" class="muted">Cloud: ...</div>
+    </div>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="ex.: utilizador@gmail.com" autofocus>
+
+    <div class="row">
+      <button class="btn" id="loginBtn">Entrar (link mágico)</button>
+      <a class="link" href="config.html">Configurar</a>
+      <a class="link" href="validador.html">Ir para o Validador</a>
+      <button class="btn" id="logoutBtn">Sair</button>
+    </div>
+
+    <!-- Plano B: OTP de 6 dígitos -->
+    <div class="row" style="margin-top:8px">
+      <input id="otpEmail" type="email" placeholder="Email (se diferente do de cima)" style="flex:1;min-width:240px">
+      <input id="otpCode"  type="text" inputmode="numeric" maxlength="6" placeholder="Código (6 dígitos)" style="width:160px">
+      <button class="btn" id="otpBtn">Entrar com código</button>
+      <button class="btn" id="sendOtpBtn" title="Envia e-mail apenas com o código">Enviar código (OTP)</button>
+    </div>
+    <p class="muted" style="margin-top:6px">
+      Se o link do email não abrir sessão, peça o código e introduza aqui.
+    </p>
+
+    <p id="out" class="muted" style="margin-top:10px"></p>
+
+    <footer>
+      © Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.8 — 2025-08-23
+    </footer>
+
+  </div></div>
+
+  <!-- Ordem correta dos scripts -->
+  
+  
+  
+
+  <script>
+    const $ = s => document.querySelector(s),
+          out = $('#out');
+
+    function say(t, c='muted'){ out.className = c; out.textContent = t; }
+
+    async function refresh(){
+      try{
+        const st = document.getElementById('cloudStatus');
+        if(!window.supa?.ready()){ st.textContent='Cloud: OFF'; st.className='bad'; return; }
+        const r = await window.supa.getUser();
+        const user = r && r.user;
+        if(user){ st.textContent='Cloud: ON — '+(user.email||'sessão ativa'); st.className='ok'; }
+        else    { st.textContent='Cloud: ON — sem sessão';                st.className='warn'; }
+      }catch(e){
+        const st = document.getElementById('cloudStatus');
+        st.textContent='Cloud: erro'; st.className='bad';
+      }
+    }
+    // permite ao supa.js atualizar o estado quando cria sessão via URL
+    window.MIEC_updateCloudStatus = refresh;
+
+    // Link mágico
+    document.getElementById('loginBtn').addEventListener('click', async ()=>{
+      try{
+        const email = document.getElementById('email').value.trim();
+        if(!email) return say('Introduza um email.','bad');
+        await window.supa.loginMagic(email);
+        say('Link enviado. Verifique o seu email.','ok');
+      }catch(e){ console.error(e); say('Falha: '+(e.message||e),'bad'); }
+    });
+
+    // Sair
+    document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+      try{ await window.supa.logout(); say('Sessão terminada.','ok'); refresh(); }
+      catch(e){ say('Falha a sair: '+(e.message||e),'bad'); }
+    });
+
+    // Enviar código (OTP) por email
+    document.getElementById('sendOtpBtn').addEventListener('click', async ()=>{
+      try{
+        const email = ($('#otpEmail').value.trim() || $('#email').value.trim());
+        if(!email) return say('Indique o email para enviar o código.','bad');
+        if (window.supa.sendEmailOtp) {
+          await window.supa.sendEmailOtp(email);
+        } else {
+          await window.supa.sendOtpOnly(email);
+        }
+        say('Código enviado. Verifique o seu email.','ok');
+      }catch(e){
+        console.error(e);
+        say('Falha ao enviar OTP: '+(e.message||e),'bad');
+      }
+    });
+
+    // Entrar com código (OTP)
+    async function doOtpLogin(){
+      try{
+        const email = ($('#otpEmail').value.trim() || $('#email').value.trim());
+        const code  = $('#otpCode').value.trim();
+        if(!email || !code) return say('Indique email e código (6 dígitos).','bad');
+        await window.supa.verifyCode(email, code);
+        say('Sessão criada com código.','ok');
+        refresh();
+      }catch(e){
+        console.error(e);
+        say('Falha no código: '+(e.message||e),'bad');
+      }
+    }
+    document.getElementById('otpBtn').addEventListener('click', doOtpLogin);
+    document.getElementById('otpCode').addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter') doOtpLogin();
+    });
+
+    // Primeiro refresh
+    setTimeout(refresh, 500);
+  </script>
+
+  <script src="js/cloud-diag.js?v=418"></script>
 </body>
 </html>
+
