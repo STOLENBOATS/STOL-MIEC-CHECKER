@@ -39,11 +39,10 @@
       }
       // 4) Legacy alias
       ensureAlias();
-      // Fire a readiness event for any listeners
+      // Notify readiness
       try{ document.dispatchEvent(new CustomEvent("supa:ready")); }catch(_){}
     } catch(e){
       console.warn("[auth-boot] failed:", e);
-      // still provide alias to avoid undefined errors; methods will reject if not ready
       ensureAlias();
     }
   })();

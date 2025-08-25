@@ -20,18 +20,13 @@
 
   async function probe(){
     try{
-      // Basic checks
       if (!window.supabase) throw new Error('sdk');
       if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('config');
-
-      // Wait until SupaAuth is ready (up to ~3s)
       const t0 = Date.now();
       while (!(window.SupaAuth && window.SupaAuth.getSession) && Date.now() - t0 < 3000) {
         await new Promise(r => setTimeout(r, 20));
       }
       if (!(window.SupaAuth && window.SupaAuth.getSession)) throw new Error('auth-not-ready');
-
-      // Ping getSession (doesn't require being logged in)
       await window.SupaAuth.getSession();
       render(true);
     } catch(e){
@@ -39,7 +34,6 @@
     }
   }
 
-  // First paint ASAP then probe when ready
   render(false);
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     probe();
