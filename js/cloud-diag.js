@@ -1,27 +1,52 @@
-/* Cloud status + test button */
+/* M.I.E.C. cloud-diag.js — v418e
+   Shows Cloud: ON when Supabase SDK + config are present and SupaAuth responds.
+   Independent of login status (session may be null). */
+
 (function(){
-  const s = document.getElementById('cloudStatus');
-  const t = document.getElementById('cloudTestBtn');
-  function setSt(text, cls){ if(!s) return; s.textContent=text; s.className=cls||''; }
-  async function upd(){
-    try{
-      if(!window.supa || !window.supa.ready()){ setSt('Cloud: OFF','bad'); return; }
-      const { user } = await window.supa.getUser();
-      if(user) setSt('Cloud: ON — '+(user.email||'sessão ativa'),'ok');
-      else setSt('Cloud: ON — sem sessão','warn');
-    }catch(e){ setSt('Cloud: erro','bad'); }
+  function findEl(){
+    return document.querySelector('[data-cloud]')
+        || document.querySelector('#cloud')
+        || document.querySelector('#cloudStatus')
+        || document.querySelector('#cloud-indicator')
+        || document.querySelector('.cloud-status');
   }
-  async function test(){
-    try{
-      if(!window.supa || !window.supa.ready()) throw new Error('Supabase não configurado');
-      const { user } = await window.supa.getUser(); if(!user) throw new Error('Sem sessão');
-      const ts=new Date().toISOString();
-      await window.supa.saveHIN({hin:'TEST-'+ts,result_ok:true,details:['diag',ts],pre1998:false,cert:false});
-      await window.supa.saveEngine({brand:'DIAG',payload:{ping:true,ts},result_ok:true,details:['diag',ts]});
-      alert('✅ Teste gravado. Veja os Históricos.'); upd();
-    }catch(e){ alert('❌ Falha: '+(e.message||e)); }
+  function render(on){
+    const el = findEl();
+    if (!el) return;
+    el.textContent = on ? 'ON' : 'OFF';
+    el.classList.toggle('ok', !!on);
+    el.setAttribute('aria-label', on ? 'Cloud online' : 'Cloud offline');
   }
-  if(t) t.addEventListener('click', test);
-  setTimeout(upd, 400);
-  window.MIEC_updateCloudStatus = upd;
+
+  async function probe(){
+    try{
+      // Basic checks
+      if (!window.supabase) throw new Error('sdk');
+      if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) throw new Error('config');
+
+      // Wait until SupaAuth is ready (up to ~3s)
+      const t0 = Date.now();
+      while (!(window.SupaAuth && window.SupaAuth.getSession) && Date.now() - t0 < 3000) {
+        await new Promise(r => setTimeout(r, 20));
+      }
+      if (!(window.SupaAuth && window.SupaAuth.getSession)) throw new Error('auth-not-ready');
+
+      // Ping getSession (doesn't require being logged in)
+      await window.SupaAuth.getSession();
+      render(true);
+    } catch(e){
+      render(false);
+    }
+  }
+
+  // First paint ASAP then probe when ready
+  render(false);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    probe();
+  } else {
+    document.addEventListener('DOMContentLoaded', probe, { once: true });
+  }
+  document.addEventListener('supa:ready', probe);
+  window.addEventListener('online', probe);
+  window.addEventListener('offline', probe);
 })();
