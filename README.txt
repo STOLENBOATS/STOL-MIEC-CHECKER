@@ -1,26 +1,16 @@
-# Login "loginMagic undefined" — Hotfix (v419)
+js/auth-boot.js (v420)
 
-**Sintoma:** Ao clicar "Entrar (link mágico)", a consola diz `Cannot read properties of undefined (reading 'loginMagic')`.
+Coloca este ficheiro em js/ e **inclui-o MUITO cedo no <head>**, ANTES dos teus scripts de página.
 
-**Causa:** `window.supa` não existe no momento do clique (a página está a chamar `supa.loginMagic(...)`).
+Exemplo de ordem no <head>:
+-------------------------------------------------
+<script defer src="js/auth-boot.js?v=420"></script>
+<!-- (opcional) os teus scripts vêm a seguir -->
+<script defer src="js/cloud-diag.js?v=418"></script>
+-------------------------------------------------
 
-**Solução:** carrega a ponte de compatibilidade que cria `window.supa` imediatamente e encaminha para `SupaAuth`.
-
-## Como aplicar
-1) Copia **js/compat-bridge.js** para `js/` do teu repo.
-2) No **<head>** do `login.html`, garante esta ordem (todos com `defer`):
-   - Supabase SDK `@2.56.0`
-   - `js/config.js?v=418`
-   - `js/supa.js?v=418`
-   - `js/compat-bridge.js?v=419`  ← **NOVO**
-   - (depois) os teus scripts de página, ex.: `js/cloud-diag.js?v=418`
-
-Podes simplesmente colar o conteúdo do ficheiro **head-snippet.html** no teu `<head>` (ajusta se já tiveres as linhas).
-
-## Teste (Consola, no login.html)
-```
-typeof window.supa, typeof window.SupaAuth
-```
-Resultado esperado: `"object" "object"`.
-
-Se ainda vires “Auth not ready” no primeiro clique, é normal em redes lentas — tenta de novo após 1–2s.
+O bootstrapper vai carregar automaticamente:
+- Supabase SDK @2.56.0 (se faltar)
+- js/config.js?v=418 (se faltar)
+- js/supa.js?v=418 (se faltar)
+e cria `window.supa` para os teus handlers.
