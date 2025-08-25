@@ -1,17 +1,14 @@
-Validador Early Gate (v420)
+Validador Early Gate (v420b, com debug/hold)
 
 Ficheiros:
-- js/validator-gate.js  → processa os tokens da URL, cria/persiste a sessão, limpa a URL e só depois deixa a página continuar (senão volta ao login).
-- head-snippet.html     → bloco para inserir no <head> do validador.html, o mais cedo possível.
+- js/validator-gate.js → processa tokens, cria/persiste sessão, limpa URL e só então prossegue; se falhar, envia para login.html?v=418.
+- head-snippet.html → bloco para pôr no <head> do validador.html, o mais cedo possível.
 
-Como aplicar:
-1) Faça upload de js/validator-gate.js para a pasta /js do repositório.
-2) No validador.html, INSIRA no <head>, idealmente antes de outros scripts, o conteúdo de head-snippet.html:
-   <link rel="icon" ...>
-   <script defer src="js/auth-boot.js?v=420"></script>
-   <script defer src="js/validator-gate.js?v=420"></script>
+Debug:
+- Adiciona ?debug=1 para overlay/logs (ex.: validador.html?debug=1).
+- Adiciona ?hold=2000 para "congelar" 2s e permitir ver o estado.
+- Podes combinar (ex.: validador.html?debug=1&hold=2500).
 
-Notas:
-- O gate chama sempre SupaAuth.finalizeFromUrl(...). Se não houver tokens, é no-op.
-- Em caso de sessão ausente após o processamento, redireciona para login.html?v=418.
-- Usa auth-boot.js para garantir SDK/config/supa se por algum motivo não tiverem sido carregados.
+Dicas:
+- Mantém este <script> acima de quaisquer scripts que possam redirecionar.
+- Não precisa de auth-boot; o gate carrega SDK/config/supa se não estiverem presentes.
