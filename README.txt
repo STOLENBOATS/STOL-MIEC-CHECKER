@@ -1,16 +1,14 @@
-js/auth-boot.js (v420)
+M.I.E.C. – UI Hotfix (v420)
 
-Coloca este ficheiro em js/ e **inclui-o MUITO cedo no <head>**, ANTES dos teus scripts de página.
+Ficheiros:
+- js/ui-hotfix.js  → força favicon (images/favicon.png), marca [data-cloud] e garante que o botão "Ir para o Validador" abre validador.html?v=418
+- validador-favicon-snippet.html → pequeno excerto para colar no <head> do validador.html, caso ainda não tenha o favicon
 
-Exemplo de ordem no <head>:
--------------------------------------------------
-<script defer src="js/auth-boot.js?v=420"></script>
-<!-- (opcional) os teus scripts vêm a seguir -->
-<script defer src="js/cloud-diag.js?v=418"></script>
--------------------------------------------------
+Como aplicar:
+1) Faça upload de js/ui-hotfix.js para a pasta /js do repositório.
+2) No login.html, adicione no fim do <head>:
+   <script defer src="js/ui-hotfix.js?v=420"></script>
+3) (Opcional) No validador.html, adicione no <head> a linha do favicon (conteúdo de validador-favicon-snippet.html). 
+   Não altera mais nada do validador.
 
-O bootstrapper vai carregar automaticamente:
-- Supabase SDK @2.56.0 (se faltar)
-- js/config.js?v=418 (se faltar)
-- js/supa.js?v=418 (se faltar)
-e cria `window.supa` para os teus handlers.
+Depois faça hard refresh (Ctrl/Cmd+F5).
