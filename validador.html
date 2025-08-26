@@ -1,34 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-<script defer src="js/config.js?v=418"></script>
-<script defer src="js/supa-auth.js?v=1"></script>
-<script defer src="js/compat-bridge.js?v=1"></script>
-<script defer src="js/validador-gate.js?v=1"></script>
-  <!-- MIEC Validador Early Gate (v420c, inline) -->
-  <script>
-  (function(){
-    var Q=new URLSearchParams(location.search),DEBUG=Q.has('debug'),HOLD=parseInt(Q.get('hold')||'0',10)||0;
-    function overlay(m){if(!DEBUG)return;var el=document.getElementById('gate-overlay');if(!el){el=document.createElement('div');el.id='gate-overlay';el.style.cssText='position:fixed;z-index:999999;top:8px;right:8px;max-width:48vw;background:#111827;color:#E5E7EB;padding:10px 12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);font:12px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap';document.body.appendChild(el);}el.textContent=m;}
-    function add(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.defer=true;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
-    async function ensure(){if(!window.supabase)await add("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0");if(!(window.SUPABASE_URL&&window.SUPABASE_ANON_KEY))await add("js/config.js?v=418");if(!window.SupaAuth)await add("js/supa.js?v=418");}
-    async function ready(fn){const t0=Date.now();while(!(window.SupaAuth&&window.SupaAuth[fn])&&Date.now()-t0<5000){await new Promise(r=>setTimeout(r,20));}return !!(window.SupaAuth&&window.SupaAuth[fn]);}
-    function clean(){try{var base=location.pathname+(/\?/.test(location.search)?location.search.replace(/([?#].*)/,''):"?v=418");history.replaceState({},'',base);}catch(_){}} 
-    async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-    async function gate(){try{overlay('gate: boot…');await ensure();if(!await ready('finalizeFromUrl'))throw new Error('auth-not-ready');overlay('gate: finalizeFromUrl…');await window.SupaAuth.finalizeFromUrl({storeSession:true,persistSession:true});clean();await sleep(25);let s=(await window.SupaAuth.getSession()).data?.session;if(!s){await sleep(250);s=(await window.SupaAuth.getSession()).data?.session;}overlay('gate: session '+(s?'OK':'MISSING'));if(HOLD){overlay('gate: hold '+HOLD+'ms');await sleep(HOLD);}if(!s){overlay('gate: redirect → login');location.replace('login.html?v=418');return;}try{document.dispatchEvent(new CustomEvent('supa:ready'));}catch(_){}}catch(e){console.warn('[validator-gate]',e);overlay('gate: ERROR '+(e?.message||e));if(HOLD){await sleep(HOLD);}try{clean();}catch(_){ }location.replace('login.html?v=418');}}
-    if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',gate,{once:true});}else{gate();}
-  })();
-  </script>
-
-  <link rel="icon" type="image/png" href="images/favicon.png" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.I.E.C. • Validador</title>
+  <link rel="icon" type="image/png" href="images/favicon.png" />
   <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  <script defer src="js/config.js?v=418"></script>
+  <script defer src="js/supa-auth.js?v=1"></script>        <!-- do pack minimal -->
+  <script defer src="js/compat-bridge.js?v=1"></script>    <!-- do pack minimal -->
+  <script defer src="js/validador-gate.js?v=1"></script>   <!-- gate simples (finaliza URL + verifica sessão) -->
 </head>
 <body>
-  
   <header class="app-header">
     <div class="brand">
       <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
@@ -60,7 +46,6 @@
         <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span></label>
         <input id="winPhoto" type="file" accept="image/*">
 
-        <!-- Nota: evita IDs duplicadas. Mantemos só UMA linha de certificado; a lógica JS mostra/oculta -->
         <label id="certLine" class="checkline" style="display:none;">
           <input id="winCert" type="checkbox">
           <b>Certificado de Conformidade</b> apresentado (BV / organismo notificado)
@@ -130,47 +115,13 @@
     <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.1.7 — 2025-08-24</p>
   </footer>
 
-  <!-- ORDEM CORRETA DOS SCRIPTS: Supabase + config + supa, depois GATE, e só depois o resto -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2.56.0"></script>
-  <script src="js/config.js?v=418"></script>
-  <script src="js/supa.js?v=418"></script>
-
-  <!-- GATE: Finaliza tokens do URL e só redireciona se continuar sem sessão -->
-  <script>
-  (async () => {
-    try {
-      if (!window.supa?.ready()) return location.replace('login.html?v=418');
-
-      // 1) processar tokens (access_token / refresh_token / token_hash / code)
-      await window.supa.finalizeFromUrl();
-
-      // 2) verificar sessão
-      const { user } = await window.supa.getUser();
-
-      // 3) se ainda não há user E já não há tokens no URL, volta ao login
-      const raw = (location.search || '') + (location.hash || '');
-      const hasTokens = /access_token|refresh_token|token_hash|code/.test(raw);
-      if (!user && !hasTokens) {
-        return location.replace('login.html?v=418');
-      }
-
-      // compat: alguns módulos antigos olham para sessionStorage
-      if (user) sessionStorage.setItem('loggedIn', '1');
-    } catch (e) {
-      console.warn('[MIEC] gate error:', e);
-      return location.replace('login.html?v=418');
-    }
-  })();
-  </script>
-
-  <!-- App scripts (correm depois do gate) -->
+  <!-- App scripts (depois do GATE) -->
   <script src="js/validador-win.js?v=418"></script>
   <script src="js/validador-motor.js?v=418"></script>
   <script src="js/utils.js?v=418"></script>
   <script src="js/forense.js?v=418"></script>
   <script src="js/forense-adapter.js?v=418"></script>
 
-  <!-- Tema + logout + extras -->
   <script>
     // Tema
     (function(){
@@ -187,11 +138,11 @@
       });
     })();
 
-    // Logout com Supabase
+    // Logout
     document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
       try{
         await window.supa.logout();
-        sessionStorage.removeItem('loggedIn'); // compat
+        sessionStorage.removeItem('loggedIn'); // compat opcional
         location.replace('login.html?v=418');
       }catch(e){
         alert('Falha a terminar sessão: ' + (e.message||e));
@@ -205,7 +156,7 @@
     });
   </script>
 
-  <!-- Opcional: diagnósticos de cloud -->
-  <script src="js/cloud-diag.js?v=418"></script>
+  <!-- (opcional) diagnósticos; manter apenas se NÃO fizer createClient() -->
+  <!-- <script src="js/cloud-diag.js?v=418"></script> -->
 </body>
 </html>
