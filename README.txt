@@ -1,30 +1,26 @@
-MIEC — Patch #2 (Cloud Sync via Supabase) — v4.2.1-auth-min — 2025-08-26
+MIEC — History Recorder v1 (v4.2.1-auth-min)
 
 Objetivo
-- Manter a base atual intacta (offline-first) e acrescentar sincronização em nuvem (Supabase) para os históricos.
-- Quando logado, os registos ficam disponíveis em qualquer dispositivo (portátil/telemóvel).
+- Garantir que **as pesquisas atuais** do Validador (WIN/HIN e Motores) ficam registadas imediatamente no histórico e com **fotografia**.
+- Não altera a tua lógica de validação; apenas **escuta** os botões/eventos e grava via HistoryService (Patch #2) ou localStorage (fallback).
 
-Conteúdo
-- sql/schema.sql → tabelas `history_win` e `history_motor` + RLS + índices únicos para upsert.
-- js/supa-sync.js → runtime de sync (pull/merge/push) resiliente e idempotente.
-- js/history-service.js → camada única para gravar local + enfileirar sync, com API simples.
-
-Como aplicar (sem quebrar o que já funciona)
-1) No Supabase (projeto do MIEC), abre o **SQL Editor** e cola o conteúdo de `sql/schema.sql`. Executa.
-2) Garante que as variáveis globais **SUPA_URL** e **SUPA_KEY** já existem (no teu `config.js`). Se preferires, define `window.MIEC_CONFIG` com estas chaves.
-3) Em todas as páginas que usam históricos/validador, adiciona estes scripts **após** carregar o `@supabase/supabase-js` e o teu `config.js`:
-   <script defer src="js/supa-sync.js?v=1"></script>
-   <script defer src="js/history-service.js?v=1"></script>
-4) No teu `validador-win.js` e `validador-motor.js`, substitui as gravações diretas no localStorage por chamadas à API:
-   // WIN
-   HistoryService.saveWin({ ts: Date.now(), win, result, reason, photo, version: APP_VERSION, device: navigator.userAgent });
-   // MOTOR
-   HistoryService.saveMotor({ ts: Date.now(), brand, ident, result, reason, photo, version: APP_VERSION, device: navigator.userAgent });
-5) Opcional: para arrancar o sync logo no load, chama `HistoryService.startAutoSync()` (ou usa o evento de sessão do teu supa-auth).
+Como usar
+1) Garante que já incluíste (depois do @supabase e do teu config.js, se existirem):
+   <script defer src="js/supa-sync.js"></script>
+   <script defer src="js/history-service.js"></script>
+2) Em `validador.html`, **após os teus scripts atuais** de validação, inclui:
+   <script defer src="js/history-recorder-win.js"></script>
+   <script defer src="js/history-recorder-motor.js"></script>
+3) Ajusta, se necessário, os **selectores** no topo de cada ficheiro para corresponder aos teus IDs/classes.
+4) Opcional: dispara manualmente um evento quando terminares a validação (se preferires controlo explícito):
+   document.dispatchEvent(new CustomEvent('validation:win:done', {
+     detail: { win, result: 'Válido'|'Inválido', reason, photoDataUrl, certificate, issuer }
+   }));
+   document.dispatchEvent(new CustomEvent('validation:motor:done', {
+     detail: { brand, ident, result, reason, photoDataUrl }
+   }));
 
 Notas
-- Se não houver sessão/autenticação, tudo continua apenas local (sem erros).
-- O sync é “melhor esforço”: tenta **push** (outbox) e **pull** (server→local) com deduplicação.
-- Duplicados são evitados por índices únicos (ver `ON CONFLICT` nas tabelas).
-- Coluna `photo`: nesta fase guardamos base64 no campo `photo` (simples). Futuro patch pode migrar para **Supabase Storage** e usar `photo_url`.
-
+- As fotos são lidas do <input type="file"> ou de uma imagem de preview; são **comprimidas** para largura máx. 1024 em JPEG ~0.85 para não estourar o localStorage.
+- Se o HistoryService não estiver disponível, grava em `miec_history_win` / `miec_history_motor` (a página dos históricos lerá normalmente).
+- Totalmente compatível com o Patch #2 (sync Supabase).
