@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M.I.E.C. • Histórico Motores</title>
+  <link rel="stylesheet" href="../css/patch_v4.2.1.css">
+  <script defer src="../js/config.js"></script>
+  <script defer src="../js/historico-motor.js"></script>
+</head>
+<body>
+  <!-- Cabeçalho comum -->
+  <header class="app-header">
+  <div class="brand">
+    <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo logo--sm">
+    <div class="titles">
+      <h1>M.I.E.C.</h1>
+      <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
+    </div>
+  </div>
+  <nav class="top-actions">
+    <a href="validador.html" class="btn btn-back-top" aria-label="Voltar ao Validador">← Voltar ao Validador</a>
+  </nav>
+</header>
+
+  <main class="container">
+    <div class="history-tabs">
+      <a href="historico_win.html">Histórico WIN</a>
+      <a href="historico_motor.html" aria-current="page"><strong>Histórico Motores</strong></a>
+    </div>
+
+    <table class="table" id="motorTable">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Marca</th>
+          <th>Identificação</th>
+          <th>Resultado</th>
+          <th>Justificação</th>
+          <th>Fotografia</th>
+        </tr>
+      </thead>
+      <tbody id="motorTbody">
+        <tr><td colspan="6" class="cell-muted">A carregar registos…</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+  <footer class="app-footer">M.I.E.C. — v4.2.1-auth-min — 2025-08-26</footer>
+</body>
+</html>

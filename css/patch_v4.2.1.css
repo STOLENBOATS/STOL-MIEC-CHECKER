@@ -1,0 +1,19 @@
+.logo--sm { height: 32px; width: auto; opacity: .9; }
+.top-actions { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
+.btn { display: inline-block; padding: .5rem .75rem; border-radius: .75rem; text-decoration: none; font-weight: 600; }
+.btn-back-top { border: 1px solid #ddd; }
+.history-tabs { display: flex; gap: .5rem; margin: 1rem 0; }
+.history-tabs a { padding: .5rem .75rem; border-radius: .75rem; border: 1px solid #ddd; text-decoration: none; }
+.table { width: 100%; border-collapse: collapse; background: #fff; }
+.table th, .table td { border-bottom: 1px solid #eee; padding: .5rem .6rem; vertical-align: top; }
+.table th { text-align: left; font-size: .92rem; color: #333; }
+.thumb { width: 84px; height: 84px; object-fit: cover; border-radius: .5rem; border: 1px solid #e6e6e6; }
+.badge { display: inline-block; padding: .15rem .5rem; border-radius: .5rem; font-size: .8rem; }
+.badge.ok { background: #e8f7ee; border: 1px solid #bde3c8; }
+.badge.err { background: #fdeeee; border: 1px solid #f5c2c2; }
+.cell-muted { color: #666; font-size: .9rem; }
+.wrap { white-space: pre-wrap; word-wrap: break-word; }
+.form-row { margin: .5rem 0; }
+.form-row label { display:block; margin-bottom: .25rem; }
+.input { width: 100%; padding: .5rem; border: 1px solid #ddd; border-radius: .5rem; }
+.result { margin-top: .75rem; }

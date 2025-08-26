@@ -1,37 +1,20 @@
-MIEC — Minimal Supabase Auth (v1)
+MIEC — Patch #1 (v4.2.1-auth-min — 2025-08-26)
 
-Arquivos:
-- js/supa-auth.js         → inicializa Supabase, finaliza a sessão a partir do URL (code/token), envia Magic Link/OTP, verifica OTP.
-- js/compat-bridge.js     → cria window.supa.* para não precisares de mudar o teu código antigo.
-- js/validador-gate.js    → gate para o validador (finaliza URL + verifica sessão; se faltar, volta ao login).
+Este patch inclui:
+- amostras de páginas para históricos (html_samples/historico_win.html e historico_motor.html)
+- JS para migração/visualização do histórico: js/historico-win.js e js/historico-motor.js
+- JS para campos dinâmicos do Validador de Motores: js/validador-motor.patch.js (não substitui o teu ficheiro atual automaticamente)
+- CSS adicional: css/patch_v4.2.1.css (podes copiar o conteúdo para o teu css/styles.css ou referenciar este ficheiro)
 
-Como instalar
-1) Garante no repositório:
-   - js/config.js com:
-     window.SUPABASE_URL = "https://SEU-PROJ.supabase.co";
-     window.SUPABASE_ANON_KEY = "eyJhbGciOi...";
-2) Em TODAS as páginas onde usas auth (login/validador/debug):
-   Adiciona no <head> (nesta ordem):
-     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-     <script defer src="js/config.js?v=418"></script>
-     <script defer src="js/supa-auth.js?v=1"></script>
-     <script defer src="js/compat-bridge.js?v=1"></script>
+Como aplicar (recomendado, sem sobrescrever a tua base):
+1) Compara as amostras em html_samples/ com as tuas páginas atuais e replica os cabeçalhos, tabelas e IDs.
+2) Copia js/historico-win.js e js/historico-motor.js para a pasta js/ do projeto e referencia-os nos respetivos HTMLs.
+3) Integra js/validador-motor.patch.js: 
+   - Podes renomear para validador-motor.js se desejares substituir, OU
+   - Importar a seguir ao teu ficheiro atual para experimentar e depois incorporar.
+4) Copia o CSS de css/patch_v4.2.1.css para o teu css/styles.css (ou inclui o ficheiro adicional no HTML).
+5) Mantém o footer com a versão: v4.2.1-auth-min — 2025-08-26.
 
-3) No validador.html, ainda no <head>, DEPOIS das linhas acima, adiciona:
-     <script defer src="js/validador-gate.js?v=1"></script>
-
-4) No Supabase Dashboard (uma vez):
-   - Auth → Settings:
-     • Site URL: https://stolenboats.github.io/STOL-MIEC-CHECKER/
-     • Additional Redirect URLs: https://stolenboats.github.io/STOL-MIEC-CHECKER/login.html , .../validador.html
-   - Email templates → Magic Link → usar {{ .ActionURL }} (não {{ .ConfirmationURL }}).
-   - (Opcional) Confirm email: desligar para simplificar DEV.
-
-5) Teste
-   - login.html → “Entrar (link mágico)” usa window.supa.loginMagic(email)
-   - login.html → OTP: window.supa.sendEmailOtp(email) e depois window.supa.verifyCode(email, code)
-   - Após clicar no link do email: deve abrir validador.html?v=418&debug=1 (opcional) e ficar.
-
-Dicas
-- Debug do gate: validador.html?v=418&debug=1&hold=2500
-- Se vir 403 no /verify, é código inválido/expirado. Peça novo OTP.
+Estratégia “base intacta”:
+- Nenhum ficheiro existente é sobrescrito automaticamente.
+- Podes renomear as amostras *.html e os *.patch.js conforme precisares.
