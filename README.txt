@@ -1,20 +1,18 @@
-MIEC — Patch #1 (v4.2.1-auth-min — 2025-08-26)
+MIEC — Históricos Fix v1.1 (v4.2.1-auth-min)
 
-Este patch inclui:
-- amostras de páginas para históricos (html_samples/historico_win.html e historico_motor.html)
-- JS para migração/visualização do histórico: js/historico-win.js e js/historico-motor.js
-- JS para campos dinâmicos do Validador de Motores: js/validador-motor.patch.js (não substitui o teu ficheiro atual automaticamente)
-- CSS adicional: css/patch_v4.2.1.css (podes copiar o conteúdo para o teu css/styles.css ou referenciar este ficheiro)
+Objetivo
+- Corrigir erro "Cannot set properties of null (setting 'innerHTML')" quando o JS corre antes do DOM ou quando os IDs diferem.
+- Tornar os scripts dos históricos (WIN e Motores) tolerantes a IDs e à ordem de carregamento.
 
-Como aplicar (recomendado, sem sobrescrever a tua base):
-1) Compara as amostras em html_samples/ com as tuas páginas atuais e replica os cabeçalhos, tabelas e IDs.
-2) Copia js/historico-win.js e js/historico-motor.js para a pasta js/ do projeto e referencia-os nos respetivos HTMLs.
-3) Integra js/validador-motor.patch.js: 
-   - Podes renomear para validador-motor.js se desejares substituir, OU
-   - Importar a seguir ao teu ficheiro atual para experimentar e depois incorporar.
-4) Copia o CSS de css/patch_v4.2.1.css para o teu css/styles.css (ou inclui o ficheiro adicional no HTML).
-5) Mantém o footer com a versão: v4.2.1-auth-min — 2025-08-26.
+Como aplicar
+1) Substituir os ficheiros do projeto por estes:
+   - js/historico-win.js
+   - js/historico-motor.js
+2) Garante que os <script> têm `defer` OU são carregados depois da tabela.
+3) Manter as colunas das tabelas como já tens. Os scripts procuram automaticamente o <tbody> e criam-no se faltar.
+4) (Opcional) Os scripts aceitam campos extra (ex.: certificate/issuer no WIN). Se as colunas não existirem, apenas ficam vazias.
 
-Estratégia “base intacta”:
-- Nenhum ficheiro existente é sobrescrito automaticamente.
-- Podes renomear as amostras *.html e os *.patch.js conforme precisares.
+Compatibilidade
+- Mantém chaves canónicas do localStorage: `miec_history_win` e `miec_history_motor` (com migração tolerante de chaves antigas).
+- Compatível com o Patch #2 (cloud sync): continua a ler o localStorage (após o pull).
+
