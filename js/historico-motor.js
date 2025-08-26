@@ -1,4 +1,4 @@
-// historico-motor.js — v1.1 (tolerante a IDs/DOM) — MIEC
+// historico-motor.js — v1.2 (tolerante + mapeamento 'hist_motor') — MIEC
 (function(){
   function $(s, r=document){ return r.querySelector(s); }
   function parseMaybe(v){ try { return JSON.parse(v); } catch { return null; } }
@@ -18,13 +18,18 @@
 
   function normEntry(e){
     if(!e) return null;
-    const id = e.ident || e.serial || e.sn || e.numero || e.number || '';
+    const ok = typeof e.ok === 'boolean' ? e.ok : undefined;
+    const resStr = e.result || (ok === true ? 'Válido' : ok === false ? 'Inválido' : '');
+    const reason = e.reason || e.details || e.justification || e.motivo || e.message || '';
+    // Ident pode vir agregado ou separado (model/code/sn)
+    const ident = e.ident || [e.model, e.code, e.sn, e.serial].filter(Boolean).join(' ').trim();
+
     return {
       ts: e.ts || e.timestamp || e.date || Date.now(),
       brand: e.brand || e.marca || '',
-      ident: id || [e.model, e.code, e.serial].filter(Boolean).join(' '),
-      result: e.result || e.status || '',
-      reason: e.reason || e.justification || e.motivo || e.message || '',
+      ident: ident,
+      result: resStr,
+      reason: reason,
       photo: e.photo || e.foto || e.image || ''
     };
   }
@@ -34,7 +39,7 @@
     const canon = parseMaybe(localStorage.getItem(CANON_KEY)) || [];
     const seen = new Set(canon.map(x => `${x.ts}|${x.brand}|${x.ident}`));
 
-    const collectionKeys = ['miec_history_motor','motorHistory','historicoMOTOR','history_motor'];
+    const collectionKeys = ['miec_history_motor','motorHistory','historicoMOTOR','history_motor','hist_motor'];
     for(const k of collectionKeys){
       const arr = parseMaybe(localStorage.getItem(k));
       if(Array.isArray(arr)){
@@ -46,6 +51,7 @@
         }
       }
     }
+
     for(let i=0;i<localStorage.length;i++){
       const k = localStorage.key(i);
       if(!k) continue;

@@ -1,6 +1,4 @@
-// MIEC — history-service.js (Patch #2)
-// API única para gravar local + enfileirar sync (quando disponível).
-
+// history-service.js — v1.1 — aceita certificate/issuer em WIN
 (function(){
   const g = window;
   const APP_VERSION = (g.MIEC_CONFIG && g.MIEC_CONFIG.APP_VERSION) || g.APP_VERSION || 'v4.2.1-auth-min — 2025-08-26';
@@ -32,6 +30,8 @@
       win: (e.win||'').trim(),
       result: e.result || '',
       reason: e.reason || '',
+      certificate: e.certificate || '',
+      issuer: e.issuer || '',
       photo: e.photo || '',
       version: e.version || APP_VERSION,
       device: e.device || (navigator.userAgent || '')
@@ -62,15 +62,12 @@
   }
 
   async function startAutoSync(){
-    // Tenta sincronizar logo à partida, depois a cada X segundos enquanto houver sessão.
     if (g.MIEC_SYNC && g.MIEC_SYNC.isEnabled) {
       try { await g.MIEC_SYNC.syncNow(); } catch {}
-      // Repetir de forma leve
       let tries = 0;
       const tick = async () => {
         tries++;
         try { await g.MIEC_SYNC.syncNow(); } catch {}
-        // Reduzir frequência após as primeiras tentativas
         const next = tries < 3 ? 5000 : 15000;
         g.__miec_sync_timer = g.setTimeout(tick, next);
       };

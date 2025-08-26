@@ -1,26 +1,28 @@
-MIEC — History Recorder v1 (v4.2.1-auth-min)
+MIEC — Históricos + HistoryService Fix v1.3 (v4.2.1-auth-min)
 
-Objetivo
-- Garantir que **as pesquisas atuais** do Validador (WIN/HIN e Motores) ficam registadas imediatamente no histórico e com **fotografia**.
-- Não altera a tua lógica de validação; apenas **escuta** os botões/eventos e grava via HistoryService (Patch #2) ou localStorage (fallback).
+Inclui:
+1) **Históricos v1.2** (já com leitura de `hist_win` / `hist_motor` e mapeamentos, incluindo FOTO):
+   - js/historico-win.js
+   - js/historico-motor.js
+2) **HistoryService v1.1** (WIN passa a aceitar `certificate` e `issuer`).
+3) **Opcional (Cloud Sync)** — suporte a `certificate/issuer` no Supabase:
+   - js/supa-sync.v1.1.js (usa flag de configuração para não partir quem ainda não migrou schema)
+   - sql/schema_delta.sql (adiciona colunas `certificate` e `issuer` a `history_win`).
 
-Como usar
-1) Garante que já incluíste (depois do @supabase e do teu config.js, se existirem):
-   <script defer src="js/supa-sync.js"></script>
-   <script defer src="js/history-service.js"></script>
-2) Em `validador.html`, **após os teus scripts atuais** de validação, inclui:
-   <script defer src="js/history-recorder-win.js"></script>
-   <script defer src="js/history-recorder-motor.js"></script>
-3) Ajusta, se necessário, os **selectores** no topo de cada ficheiro para corresponder aos teus IDs/classes.
-4) Opcional: dispara manualmente um evento quando terminares a validação (se preferires controlo explícito):
-   document.dispatchEvent(new CustomEvent('validation:win:done', {
-     detail: { win, result: 'Válido'|'Inválido', reason, photoDataUrl, certificate, issuer }
-   }));
-   document.dispatchEvent(new CustomEvent('validation:motor:done', {
-     detail: { brand, ident, result, reason, photoDataUrl }
-   }));
+Como aplicar (seguro e incremental)
+A) **Sempre** (offline/local + compatível com Patch #2):
+   - Substitui: `js/historico-win.js`, `js/historico-motor.js`, `js/history-service.js`.
+   - (sem mexer no teu validador)
+B) **Se quiseres sincronizar também `certificate/issuer` para a cloud**:
+   1. No Supabase, corre `sql/schema_delta.sql` (adiciona colunas).
+   2. Troca o ficheiro de sync para `js/supa-sync.v1.1.js` (ou renomeia para `supa-sync.js`).
+   3. Em `config.js`, ativa a flag:
+      ```js
+      window.MIEC_CONFIG = {
+        ...,
+        SYNC_EXTRA_WIN_FIELDS: true
+      };
+      ```
 
 Notas
-- As fotos são lidas do <input type="file"> ou de uma imagem de preview; são **comprimidas** para largura máx. 1024 em JPEG ~0.85 para não estourar o localStorage.
-- Se o HistoryService não estiver disponível, grava em `miec_history_win` / `miec_history_motor` (a página dos históricos lerá normalmente).
-- Totalmente compatível com o Patch #2 (sync Supabase).
+- Se **não** aplicares o delta SQL nem ativares a flag, o sync continua a funcionar como antes (sem enviar/receber `certificate/issuer`). Os históricos locais continuam a exibir esses campos normalmente.
