@@ -10,9 +10,9 @@
   <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
   <script defer src="js/config.js?v=418"></script>
-  <script defer src="js/supa-auth.js?v=1"></script>        <!-- do pack minimal -->
-  <script defer src="js/compat-bridge.js?v=1"></script>    <!-- do pack minimal -->
-  <script defer src="js/validador-gate.js?v=1"></script>   <!-- gate simples (finaliza URL + verifica sessão) -->
+  <script defer src="js/supa-auth.js?v=1"></script>
+  <script defer src="js/compat-bridge.js?v=1"></script>
+  <script defer src="js/validador-gate.js?v=1"></script>
 </head>
 <body>
   <header class="app-header">
@@ -32,7 +32,6 @@
   </header>
 
   <main class="container grid-2">
-    <!-- HIN Section -->
     <section class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <h2>Validação HIN <span class="muted">(Hull Identification Number)</span></h2>
@@ -74,7 +73,6 @@
       </details>
     </section>
 
-    <!-- Engines Section -->
     <section class="card">
       <h2>Validação Motores</h2>
       <form id="motorForm" class="form-grid">
@@ -95,7 +93,7 @@
           <option value="Tohatsu" data-soon="1">Tohatsu (em breve)</option>
         </select>
 
-        <div id="brandFields"><!-- dynamic fields --></div>
+        <div id="brandFields"></div>
 
         <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span></label>
         <input id="motorPhoto" type="file" accept="image/*">
@@ -123,7 +121,6 @@
   <script src="js/forense-adapter.js?v=418"></script>
 
   <script>
-    // Tema
     (function(){
       const saved = localStorage.getItem('theme') || 'dark';
       const root = document.documentElement;
@@ -138,25 +135,20 @@
       });
     })();
 
-    // Logout
     document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
       try{
         await window.supa.logout();
-        sessionStorage.removeItem('loggedIn'); // compat opcional
+        sessionStorage.removeItem('loggedIn');
         location.replace('login.html?v=418');
       }catch(e){
         alert('Falha a terminar sessão: ' + (e.message||e));
       }
     });
 
-    // Link Regras Forenses com brand atual
     document.getElementById('forenseLink')?.addEventListener('click', function(){
       const b = document.getElementById('brand')?.value || '';
       if (b) this.href = 'forense_regras.html?brand=' + encodeURIComponent(b);
     });
   </script>
-
-  <!-- (opcional) diagnósticos; manter apenas se NÃO fizer createClient() -->
-  <!-- <script src="js/cloud-diag.js?v=418"></script> -->
 </body>
 </html>
