@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-<script defer src="js/config.js?v=418"></script>
-<script defer src="js/compat-bridge.js?v=1"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>M.I.E.C. • Login</title>
+
+  <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  <script defer src="js/config.js?v=418"></script>
+  <script defer src="js/supa-auth.js?v=1"></script>        <!-- do pack minimal -->
+  <script defer src="js/compat-bridge.js?v=1"></script>    <!-- do pack minimal -->
+
+  <!-- (opcional) diagnósticos; manter apenas se NÃO fizer createClient() -->
+  <!-- <script defer src="js/cloud-diag.js?v=419"></script> -->
+
   <style>
     :root{--bg:#f6f8fc;--card:#fff;--border:#e5e9f2;--text:#0b1220;--muted:#6b7280}
     *{box-sizing:border-box}
@@ -26,13 +33,6 @@
     .muted{color:var(--muted)} .ok{color:#0a7} .bad{color:#c33} .warn{color:#b58900}
     footer{margin-top:14px;text-align:center;color:var(--muted);font-size:14px}
   </style>
-
-  <!-- Auth bootstrap + compat alias (must be early) -->
-  <script defer src="js/auth-boot.js?v=420"></script>
-  <script defer src="js/compat-bridge.js?v=419"></script>
-  <!-- Page script(s) -->
-  <script defer src="js/cloud-diag.js?v=419"></script>
-
 </head>
 <body>
   <div class="wrap"><div class="card">
@@ -77,11 +77,6 @@
 
   </div></div>
 
-  <!-- Ordem correta dos scripts -->
-  
-  
-  
-
   <script>
     const $ = s => document.querySelector(s),
           out = $('#out');
@@ -101,7 +96,6 @@
         st.textContent='Cloud: erro'; st.className='bad';
       }
     }
-    // permite ao supa.js atualizar o estado quando cria sessão via URL
     window.MIEC_updateCloudStatus = refresh;
 
     // Link mágico
@@ -127,8 +121,11 @@
         if(!email) return say('Indique o email para enviar o código.','bad');
         if (window.supa.sendEmailOtp) {
           await window.supa.sendEmailOtp(email);
-        } else {
+        } else if (window.supa.sendOtpOnly) {
           await window.supa.sendOtpOnly(email);
+        } else {
+          // compat: usar o mesmo que magic link (o email da Supabase contém o código)
+          await window.supa.loginMagic(email);
         }
         say('Código enviado. Verifique o seu email.','ok');
       }catch(e){
@@ -156,11 +153,7 @@
       if(ev.key === 'Enter') doOtpLogin();
     });
 
-    // Primeiro refresh
     setTimeout(refresh, 500);
   </script>
-
-  
 </body>
 </html>
-
