@@ -1,19 +1,32 @@
-/* compat-bridge.js (v419) — ensures window.supa exists immediately */
+/* compat-bridge.js (v1)
+   Bridges existing window.supa.* calls to window.Auth.* to avoid changing your code.
+*/
 (function(){
-  function install(){
-    if (!window.supa) {
-      window.supa = {
-        loginMagic: (...a)=>window.SupaAuth?window.SupaAuth.loginMagic(...a):Promise.reject(new Error("Auth not ready")),
-        sendEmailOtp: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
-        sendOtpOnly: (...a)=>window.SupaAuth?window.SupaAuth.sendEmailOtp(...a):Promise.reject(new Error("Auth not ready")),
-        verifyCode: (...a)=>window.SupaAuth?window.SupaAuth.verifyCode(...a):Promise.reject(new Error("Auth not ready")),
-        getSession: (...a)=>window.SupaAuth?window.SupaAuth.getSession(...a):Promise.resolve({data:null}),
-        getUser: async ()=>{ try{ const {data}=await(window.SupaAuth?window.SupaAuth.getSession():Promise.resolve({data:null})); return {user:data?.session?.user||null}; }catch(e){ return {user:null}; } },
-        logout: (...a)=>window.SupaAuth?window.SupaAuth.logout(...a):null,
-      };
-    }
+  function ensure(){
+    if (!window.supa) window.supa = {};
+    const A = window.Auth || {};
+    const map = {
+      loginMagic: 'magicLink',
+      sendEmailOtp: 'sendOtp',
+      verifyCode: 'verifyOtp',
+      finalizeFromUrl: 'finalizeFromUrl',
+      getSession: 'getSession',
+      logout: 'logout',
+    };
+    Object.keys(map).forEach((k)=>{
+      const fn = map[k];
+      window.supa[k] = function(){ return (A[fn]||(()=>Promise.reject(new Error('Auth not ready')))).apply(A, arguments); };
+    });
+    window.supa.getUser = async function(){
+      try { const { data } = await (A.getSession ? A.getSession() : { data:null }); return { user: data?.session?.user || null }; }
+      catch(e){ return { user:null }; }
+    };
+    window.supa.ready = ()=>!!window.Auth;
   }
-  // install as early as possible
-  install();
-  document.addEventListener("supa:ready", install);
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ensure, { once:true });
+  } else {
+    ensure();
+  }
+  document.addEventListener('supa:ready', ensure);
 })();
