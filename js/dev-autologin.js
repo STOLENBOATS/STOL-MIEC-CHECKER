@@ -1,16 +1,12 @@
-// js/dev-autologin.js — DEV autologin sem fricção
-// Só corre em DEV (flags/domínios). NÃO usar em produção.
+// js/dev-autologin.js — DEV autologin sem fricção (não usar em produção)
 (function(){
   const g = window;
   const cfg = g.MIEC_CONFIG || {};
 
   function isDevEnabled(){
     if (cfg.DEV_MODE === true) return true;
-    // ativar por URL ?dev=1
     if (new URLSearchParams(location.search).get('dev') === '1') return true;
-    // ativar por localStorage (MIEC_DEV = "1")
     try { if (localStorage.getItem('MIEC_DEV') === '1') return true; } catch {}
-    // ativar em hosts de desenvolvimento
     const host = location.hostname || '';
     if (/^(localhost|127\.0\.0\.1)$/i.test(host)) return true;
     if (/\.(local|lan)$/i.test(host)) return true;
@@ -44,7 +40,6 @@
       if (session){ hideLoginUI(); return; } // já autenticado
     }catch(e){ console.warn('[dev-autologin] getSession falhou:', e); }
 
-    // procurar credenciais
     let email = cfg.DEV_EMAIL, password = cfg.DEV_PASSWORD;
     try {
       const fromLS = JSON.parse(localStorage.getItem('MIEC_DEV_CREDENTIALS') || 'null');
@@ -52,11 +47,11 @@
     } catch {}
 
     if (!email || !password){
-      console.warn('[dev-autologin] faltam DEV_EMAIL/DEV_PASSWORD (config.js ou localStorage MIEC_DEV_CREDENTIALS).');
+      console.warn('[dev-autologin] faltam DEV_EMAIL/DEV_PASSWORD (js/config.dev.js ou localStorage).');
       return;
     }
 
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error){ console.warn('[dev-autologin] falhou login DEV:', error.message); }
     else {
       console.log('[dev-autologin] sessão DEV ativa para', email);
