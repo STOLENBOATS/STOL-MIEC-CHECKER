@@ -8,23 +8,23 @@
   <link rel="stylesheet" href="css/styles.css">
 
   <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-  <script defer src="js/config.js?v=418"></script>
-  <script defer src="js/supa-auth.js?v=1"></script>
-  <script defer src="js/compat-bridge.js?v=1"></script>
-  <script defer src="js/validador-gate.js?v=1"></script>
-  <script defer src="js/supa-sync.v1.2.js"></script>
-  <script defer src="js/history-service.js"></script>
-  
+<!-- Supabase + Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
 <script defer src="js/config.js?v=418"></script>
 
+<!-- Sync + Service + (opcionais) -->
 <script defer src="js/supa-sync.v1.2.js"></script>
 <script defer src="js/history-service.js"></script>
-
 <script defer src="js/ls-guard.js?v=1"></script>
 <script defer src="js/cleanup-history.js?v=1"></script>
-<script defer src="js/hotfix-history-inject.js?v=H1"></script>
+
+<!-- SE estás a usar os recorders "Pro v2", remove o hotfix para não duplicar -->
+<!-- <script defer src="js/hotfix-history-inject.js?v=H1"></script> -->
+
+<!-- Recorders (ativos) -->
+<script defer src="js/history-recorder-win.js"></script>
+<script defer src="js/history-recorder-motor.js"></script>
+
 
 <script defer src="js/history-recorder-win.js"></script>
 <script defer src="js/history-recorder-motor.js"></script>
