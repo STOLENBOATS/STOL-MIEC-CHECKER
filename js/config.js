@@ -32,3 +32,12 @@
     console.warn("[config] shim failed:", e);
   }
 })();
+
+/* MIEC extras (v418c) — expõe config unificada + flags para o sync */
+window.MIEC_CONFIG = Object.assign({}, window.MIEC_CONFIG, {
+  SUPA_URL:  window.SUPABASE_URL,
+  SUPA_KEY:  window.SUPABASE_ANON_KEY,
+  APP_VERSION: 'v4.2.1-auth-min — 2025-08-26',
+  SYNC_EXTRA_WIN_FIELDS: true,    // envia/recebe certificate/issuer (WIN)
+  SYNC_EXTRA_MOTOR_FIELDS: true   // idem para MOTOR
+});
