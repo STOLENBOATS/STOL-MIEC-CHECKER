@@ -1,0 +1,49 @@
+
+/* css/styles-override.v1.css — non-breaking overrides */
+
+/* Header: make logo and subtitle bigger */
+.app-header .brand .logo { 
+  width: 84px; height: auto;
+}
+.app-header .brand .titles h1 { 
+  font-size: 1.8rem;
+}
+.app-header .brand .titles .subtitle {
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+
+/* Ensure logout button is visible unless explicitly hidden */
+.header-actions #logoutBtn { display: inline-flex !important; }
+
+/* Thumbnails universal */
+img.thumb, .result img, .forense img {
+  max-width: 140px; 
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  cursor: zoom-in;
+}
+
+/* Lightbox overlay */
+.miec-lightbox-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  display: none; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.miec-lightbox-backdrop.show { display: flex; }
+.miec-lightbox-frame {
+  max-width: 92vw; max-height: 92vh;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  background: #000;
+  border-radius: 10px;
+}
+.miec-lightbox-frame img { display: block; max-width: 92vw; max-height: 92vh; }
+.miec-lightbox-close {
+  position: absolute; top: 14px; right: 18px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  backdrop-filter: blur(4px);
+}
