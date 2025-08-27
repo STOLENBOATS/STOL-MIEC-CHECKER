@@ -1,26 +1,18 @@
-MIEC — App Update v1.4 (Cloud Sync + Históricos + Service)
+MIEC — Hotfix H1 (injeção pós-submissão)
+===============================================
+Objetivo: garantir que **as pesquisas atuais** entram nos históricos, mesmo que o validador não esteja a chamar o HistoryService.
 
-Inclui tudo para ligar a App ao Supabase e sincronizar históricos.
+Como funciona
+- Ouve o submit dos formulários `#winForm` e `#motorForm`.
+- Aguarda 200–400 ms para deixar o teu código gravar em `hist_win` / `hist_motor`.
+- Lê o **último item** desses arrays e mapeia para o formato canónico.
+- Chama `HistoryService.saveWin/saveMotor()` (local + outbox para sync).
 
-Arquivos
-- js/historico-win.js
-- js/historico-motor.js
-- js/history-service.js
-- js/supa-sync.v1.2.js
-- js/history-recorder-win.js   (opcional)
-- js/history-recorder-motor.js (opcional)
-- js/config.example.js         (preenche com as tuas chaves e renomeia para config.js)
-- js/auth-mini.js              (ganchos simples para login e arranque do sync)
+Como instalar
+1) Coloca o ficheiro em `js/hotfix-history-inject.js`.
+2) Em `validador.html`, **depois dos teus scripts atuais** e do `history-service.js`, adiciona:
+   <script defer src="js/hotfix-history-inject.js?v=H1"></script>
 
-Como usar (resumo)
-1) Copia `js/config.example.js` para `js/config.js` e edita SUPA_URL/SUPA_KEY.
-2) Em cada página que use validação/histórico, garante esta ordem:
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-   <script defer src="js/config.js"></script>
-   <script defer src="js/supa-sync.v1.2.js"></script>
-   <script defer src="js/history-service.js"></script>
-   <!-- (opcionais) -->
-   <script defer src="js/history-recorder-win.js"></script>
-   <script defer src="js/history-recorder-motor.js"></script>
-   <script defer src="js/auth-mini.js"></script>
-3) Depois do login, o `auth-mini.js` chama `HistoryService.startAutoSync()` e a sincronização arranca.
+Sem riscos
+- Não mexe no teu validador; só “escuta” e copia o último registo para o formato canónico.
+- Se `HistoryService` não existir, não faz nada.
