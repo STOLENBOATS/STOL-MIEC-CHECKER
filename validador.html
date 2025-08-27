@@ -21,6 +21,52 @@
 <!-- Sync + Service -->
 <script defer src="js/supa-sync.v1.2.js"></script>
 <script defer src="js/history-service.js"></script>
+  <script>
+    
+(function(){
+  // Espera até todos os scripts "defer" correrem
+  function onLoad(cb){ 
+    if (document.readyState === 'complete') cb();
+    else window.addEventListener('load', cb, { once:true });
+  }
+
+  onLoad(async function boot(){
+    // 1) Esperar pelo MIEC_SYNC.client (até ~10s)
+    let tries = 0;
+    while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
+      await new Promise(r=>setTimeout(r,250)); tries++;
+    }
+    const sb = window.MIEC_SYNC?.client || window.supabaseClient;
+    if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
+
+    // 2) Arrancar auto-sync se já houver sessão e nas mudanças de sessão
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session && window.HistoryService?.startAutoSync) {
+        HistoryService.startAutoSync();
+      }
+      sb.auth.onAuthStateChange((_ev, sess)=>{
+        if (sess && window.HistoryService?.startAutoSync) {
+          HistoryService.startAutoSync();
+        }
+      });
+    } catch(e) {
+      console.warn('[auto-sync] getSession falhou:', e);
+    }
+
+    // 3) Empurrão pós-gravação (não bloqueante)
+    const hs = window.HistoryService || {};
+    if (typeof hs.saveWin === 'function' && !hs.__patched){
+      const origWin   = hs.saveWin.bind(hs);
+      const origMotor = hs.saveMotor.bind(hs);
+      hs.saveWin = (o)=>{ const r = origWin(o);   setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+      hs.saveMotor = (o)=>{ const r = origMotor(o); setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+      hs.__patched = true;
+    }
+  });
+})();
+</script>
+
 
 <!-- AUTO-SYNC inline (substitui o ficheiro em falta) -->
 <script>
