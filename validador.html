@@ -1,153 +1,79 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>M.I.E.C. • Validador</title>
   <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
+  <!-- Supabase + Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  <script defer src="js/config.js?v=418"></script>
 
-<!-- Supabase + Config -->
-<!-- Supabase + Config -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-<script defer src="js/config.js?v=418"></script>
+  <!-- Autenticação (se aplicável) -->
+  <script defer src="js/supa-auth.js?v=1"></script>
+  <script defer src="js/compat-bridge.js?v=1"></script>
+  <script defer src="js/validador-gate.js?v=1"></script>
 
-<!-- (se usas) autenticação própria -->
-<script defer src="js/supa-auth.js?v=1"></script>
-<script defer src="js/compat-bridge.js?v=1"></script>
-<script defer src="js/validador-gate.js?v=1"></script>
+  <!-- Sync + Service -->
+  <script defer src="js/supa-sync.v1.2.js"></script>
+  <script defer src="js/history-service.js"></script>
 
-<!-- Sync + Service -->
-<script defer src="js/supa-sync.v1.2.js"></script>
-<script defer src="js/history-service.js"></script>
-
-<!-- AUTO-SYNC / PUSH pós-gravação -->
-<script>
-(function(){
-  function onLoad(cb){ 
-    if (document.readyState === 'complete') cb();
-    else window.addEventListener('load', cb, { once:true });
-  }
-  onLoad(async function boot(){
-    // Espera MIEC_SYNC.client (máx ~10s)
-    let tries = 0;
-    while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
-      await new Promise(r=>setTimeout(r,250)); tries++;
+  <!-- AUTO-SYNC + push pós-gravação (único bloco) -->
+  <script>
+  (function(){
+    function onLoad(cb){
+      if (document.readyState === 'complete') cb();
+      else window.addEventListener('load', cb, { once: true });
     }
-    const sb = window.MIEC_SYNC?.client || window.supabaseClient;
-    if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
-
-    // Arranca auto-sync com sessão + em mudanças de sessão
-    try {
-      const { data:{ session } } = await sb.auth.getSession();
-      if (session && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
-      sb.auth.onAuthStateChange((_ev, sess)=>{
-        if (sess && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
-      });
-    } catch(e) { console.warn('[auto-sync] getSession falhou:', e); }
-
-    // Empurrão discreto após cada gravação
-    const hs = window.HistoryService || {};
-    if (typeof hs.saveWin === 'function' && !hs.__patched){
-      const origWin   = hs.saveWin.bind(hs);
-      const origMotor = hs.saveMotor.bind(hs);
-      hs.saveWin   = o => { const r = origWin(o);   setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-      hs.saveMotor = o => { const r = origMotor(o); setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-      hs.__patched = true;
-    }
-  });
-})();
-</script>
-
-<!-- Proteção de quota (opcional) -->
-<script defer src="js/ls-guard.js?v=1"></script>
-<script defer src="js/cleanup-history.js?v=1"></script>
-
-<!-- Recorders (ativos) -->
-<script defer src="js/history-recorder-win.js"></script>
-<script defer src="js/history-recorder-motor.js"></script>
-    
-  // Espera até todos os scripts "defer" correrem
-  function onLoad(cb){ 
-    if (document.readyState === 'complete') cb();
-    else window.addEventListener('load', cb, { once:true });
-  }
-
-  onLoad(async function boot(){
-    // 1) Esperar pelo MIEC_SYNC.client (até ~10s)
-    let tries = 0;
-    while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
-      await new Promise(r=>setTimeout(r,250)); tries++;
-    }
-    const sb = window.MIEC_SYNC?.client || window.supabaseClient;
-    if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
-
-    // 2) Arrancar auto-sync se já houver sessão e nas mudanças de sessão
-    try {
-      const { data:{ session } } = await sb.auth.getSession();
-      if (session && window.HistoryService?.startAutoSync) {
-        HistoryService.startAutoSync();
+    onLoad(async function boot(){
+      // Espera MIEC_SYNC.client (máx ~10s)
+      let tries = 0;
+      while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
+        await new Promise(r => setTimeout(r, 250));
+        tries++;
       }
-      sb.auth.onAuthStateChange((_ev, sess)=>{
-        if (sess && window.HistoryService?.startAutoSync) {
-          HistoryService.startAutoSync();
-        }
-      });
-    } catch(e) {
-      console.warn('[auto-sync] getSession falhou:', e);
-    }
+      const sb = window.MIEC_SYNC?.client || window.supabaseClient;
+      if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
 
-    // 3) Empurrão pós-gravação (não bloqueante)
-    const hs = window.HistoryService || {};
-    if (typeof hs.saveWin === 'function' && !hs.__patched){
-      const origWin   = hs.saveWin.bind(hs);
-      const origMotor = hs.saveMotor.bind(hs);
-      hs.saveWin = (o)=>{ const r = origWin(o);   setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-      hs.saveMotor = (o)=>{ const r = origMotor(o); setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-      hs.__patched = true;
-    }
-  });
-})();
-</script>
+      // Arranca auto-sync com sessão e em mudanças de sessão
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
+        sb.auth.onAuthStateChange((_ev, sess) => {
+          if (sess && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
+        });
+      } catch (e) {
+        console.warn('[auto-sync] getSession falhou:', e);
+      }
 
-
-<!-- AUTO-SYNC inline (substitui o ficheiro em falta) -->
-<script>
-(async () => {
-  const sb = window.MIEC_SYNC?.client || window.supabaseClient;
-  if (!sb) return;
-  try {
-    const { data:{ session } } = await sb.auth.getSession();
-    if (session && window.HistoryService?.startAutoSync) {
-      HistoryService.startAutoSync();
-    }
-    sb.auth.onAuthStateChange((_ev, sess) => {
-      if (sess && window.HistoryService?.startAutoSync) {
-        HistoryService.startAutoSync();
+      // Empurrão discreto após cada gravação (pushOutbox)
+      const hs = window.HistoryService || {};
+      if (typeof hs.saveWin === 'function' && !hs.__patched){
+        const origWin   = hs.saveWin.bind(hs);
+        const origMotor = hs.saveMotor.bind(hs);
+        hs.saveWin   = o => { const r = origWin(o);   setTimeout(() => window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+        hs.saveMotor = o => { const r = origMotor(o); setTimeout(() => window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+        hs.__patched = true;
       }
     });
-  } catch(e) {
-    console.warn('[auto-sync]', e);
-  }
-})();
-</script>
+  })();
+  </script>
 
-<!-- Proteção de quota (opcional) -->
-<script defer src="js/ls-guard.js?v=1"></script>
-<script defer src="js/cleanup-history.js?v=1"></script>
+  <!-- Proteção de quota (opcional, recomendado) -->
+  <script defer src="js/ls-guard.js?v=1"></script>
+  <script defer src="js/cleanup-history.js?v=1"></script>
 
-<!-- Recorders ativos (uma única vez) -->
-<script defer src="js/history-recorder-win.js"></script>
-<script defer src="js/history-recorder-motor.js"></script>
-
-
+  <!-- Recorders (ativos) -->
+  <script defer src="js/history-recorder-win.js"></script>
+  <script defer src="js/history-recorder-motor.js"></script>
 </head>
+
 <body>
   <header class="app-header">
     <div class="brand">
-      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo" />
       <div class="titles">
         <h1>M.I.E.C.</h1>
         <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
@@ -170,19 +96,19 @@
 
       <form id="winForm" class="form-grid">
         <label for="winInput"><b>HIN</b> <span class="hint">(Ex.: FR-CNBZA135A612)</span></label>
-        <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required>
+        <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required />
 
         <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span></label>
-        <input id="winPhoto" type="file" accept="image/*">
+        <input id="winPhoto" type="file" accept="image/*" />
 
         <label id="certLine" class="checkline" style="display:none;">
-          <input id="winCert" type="checkbox">
+          <input id="winCert" type="checkbox" />
           <b>Certificado de Conformidade</b> apresentado (BV / organismo notificado)
           <span class="sub-en">(Conformity Certificate presented — Notified Body)</span>
         </label>
 
         <button class="btn primary" type="submit" title="Validar HIN / Validate HIN">
-          Validar HIN<br><span class="sub-en">(Validate HIN)</span>
+          Validar HIN<br /><span class="sub-en">(Validate HIN)</span>
         </button>
       </form>
       <div id="winResult" class="result"></div>
@@ -192,11 +118,11 @@
         <div class="two-col">
           <div>
             <label><b>N.º Certificado</b></label>
-            <input id="certNumber" placeholder="ex.: BV-2021-XXXXX">
+            <input id="certNumber" placeholder="ex.: BV-2021-XXXXX" />
           </div>
           <div>
             <label><b>Entidade emissora</b></label>
-            <input id="certIssuer" placeholder="ex.: Bureau Veritas">
+            <input id="certIssuer" placeholder="ex.: Bureau Veritas" />
           </div>
         </div>
         <div id="winForense" class="forense"></div>
@@ -226,7 +152,7 @@
         <div id="brandFields"></div>
 
         <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span></label>
-        <input id="motorPhoto" type="file" accept="image/*">
+        <input id="motorPhoto" type="file" accept="image/*" />
 
         <button class="btn primary" type="submit" title="Validar Motor / Validate Engine">Validar Motor</button>
       </form>
@@ -255,10 +181,10 @@
       const saved = localStorage.getItem('theme') || 'dark';
       const root = document.documentElement;
       root.classList.remove('theme-dark','theme-light');
-      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
+      root.classList.add(saved === 'light' ? 'theme-light' : 'theme-dark');
       document.getElementById('themeBtn')?.addEventListener('click', ()=>{
         const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
-        const next = curr==='light' ? 'dark' : 'light';
+        const next = curr === 'light' ? 'dark' : 'light';
         root.classList.toggle('theme-light');
         root.classList.toggle('theme-dark');
         localStorage.setItem('theme', next);
@@ -271,7 +197,7 @@
         sessionStorage.removeItem('loggedIn');
         location.replace('login.html?v=418');
       }catch(e){
-        alert('Falha a terminar sessão: ' + (e.message||e));
+        alert('Falha a terminar sessão: ' + (e.message || e));
       }
     });
 
@@ -282,3 +208,4 @@
   </script>
 </body>
 </html>
+
