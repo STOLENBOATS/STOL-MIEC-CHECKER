@@ -1,5 +1,4 @@
-
-// js/lightbox.v1.js — click-to-zoom for all images (delegated)
+// js/lightbox.v1.js
 (function(){
   function ensureOverlay(){
     let back = document.querySelector('.miec-lightbox-backdrop');

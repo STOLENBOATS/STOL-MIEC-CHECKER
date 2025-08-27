@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.I.E.C. • Validador</title>
   <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/styles-override.v1.css">
-
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles-override.v1.css"><!-- added -->
 
   <!-- Supabase + Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
   <script defer src="js/config.js?v=418"></script>
-  <!-- DEV config (opcional; gitignore) -->
-  <script defer src="js/config.dev.js"></script>
 
-  <!-- Autenticação (se aplicável) -->
+  <!-- (se usas) autenticação própria -->
   <script defer src="js/supa-auth.js?v=1"></script>
   <script defer src="js/compat-bridge.js?v=1"></script>
   <script defer src="js/validador-gate.js?v=1"></script>
@@ -23,72 +20,22 @@
   <!-- Sync + Service -->
   <script defer src="js/supa-sync.v1.2.js"></script>
   <script defer src="js/history-service.js"></script>
-  <!-- DEV autologin (apenas DEV) -->
-  <script defer src="js/dev-autologin.js"></script>
-  <script defer src="js/lightbox.v1.js"></script>
+
+  <!-- Codebooks dinâmicos + regras HIN -->
   <script>
-  window.MIEC_MIC_SOURCES = [
-    { type:'json', url:'data/mic.all.json' }   // usa os MICs locais
-  ];
- </script>
- <script defer src="js/codebooks-live.v1.js"></script>
- <script defer src="js/hin-rules.patch.v1.1.js"></script>
-
-
-  <!-- AUTO-SYNC + push pós-gravação (único bloco) -->
-  <script>
-  (function(){
-    function onLoad(cb){
-      if (document.readyState === 'complete') cb();
-      else window.addEventListener('load', cb, { once: true });
-    }
-    onLoad(async function boot(){
-      // Espera MIEC_SYNC.client (máx ~10s)
-      let tries = 0;
-      while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
-        await new Promise(r => setTimeout(r, 250));
-        tries++;
-      }
-      const sb = window.MIEC_SYNC?.client || window.supabaseClient;
-      if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
-
-      // Arranca auto-sync com sessão e em mudanças de sessão
-      try {
-        const { data: { session } } = await sb.auth.getSession();
-        if (session && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
-        sb.auth.onAuthStateChange((_ev, sess) => {
-          if (sess && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
-        });
-      } catch (e) {
-        console.warn('[auto-sync] getSession falhou:', e);
-      }
-
-      // Empurrão discreto após cada gravação (pushOutbox)
-      const hs = window.HistoryService || {};
-      if (typeof hs.saveWin === 'function' && !hs.__patched){
-        const origWin   = hs.saveWin.bind(hs);
-        const origMotor = hs.saveMotor.bind(hs);
-        hs.saveWin   = o => { const r = origWin(o);   setTimeout(() => window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-        hs.saveMotor = o => { const r = origMotor(o); setTimeout(() => window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
-        hs.__patched = true;
-      }
-    });
-  })();
+    window.MIEC_MIC_SOURCES = [
+      { type:'json', url:'data/mic.all.json' }  // codebook alargado local
+    ];
   </script>
-
-  <!-- Proteção de quota (opcional, recomendado) -->
-  <script defer src="js/ls-guard.js?v=1"></script>
-  <script defer src="js/cleanup-history.js?v=1"></script>
-
-  <!-- Recorders (ativos) -->
-  <script defer src="js/history-recorder-win.js"></script>
-  <script defer src="js/history-recorder-motor.js"></script>
+  <script defer src="js/codebooks-live.v1.js"></script>
+  <script defer src="js/hin-rules.patch.v1.1.js"></script>
+  <script defer src="js/hin-year-filter.patch.v1.js"></script>
+  <script defer src="js/lightbox.v1.js"></script>
 </head>
-
 <body>
   <header class="app-header">
     <div class="brand">
-      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo" />
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
       <div class="titles">
         <h1>M.I.E.C.</h1>
         <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
@@ -103,87 +50,62 @@
   </header>
 
   <main class="container grid-2">
+    <!-- ... mantém o teu conteúdo do validador ... -->
     <section class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <h2>Validação HIN <span class="muted">(Hull Identification Number)</span></h2>
         <div id="winBadge" class="badge hidden"></div>
       </div>
-
       <form id="winForm" class="form-grid">
         <label for="winInput"><b>HIN</b> <span class="hint">(Ex.: FR-CNBZA135A612)</span></label>
-        <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required />
-
+        <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required>
         <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span></label>
-        <input id="winPhoto" type="file" accept="image/*" />
-
+        <input id="winPhoto" type="file" accept="image/*">
         <label id="certLine" class="checkline" style="display:none;">
-          <input id="winCert" type="checkbox" />
+          <input id="winCert" type="checkbox">
           <b>Certificado de Conformidade</b> apresentado (BV / organismo notificado)
           <span class="sub-en">(Conformity Certificate presented — Notified Body)</span>
         </label>
-
         <button class="btn primary" type="submit" title="Validar HIN / Validate HIN">
-          Validar HIN<br /><span class="sub-en">(Validate HIN)</span>
+          Validar HIN<br><span class="sub-en">(Validate HIN)</span>
         </button>
       </form>
       <div id="winResult" class="result"></div>
-
       <details class="card forense-card">
         <summary>Detalhe Forense (opcional)</summary>
         <div class="two-col">
-          <div>
-            <label><b>N.º Certificado</b></label>
-            <input id="certNumber" placeholder="ex.: BV-2021-XXXXX" />
-          </div>
-          <div>
-            <label><b>Entidade emissora</b></label>
-            <input id="certIssuer" placeholder="ex.: Bureau Veritas" />
-          </div>
+          <div><label><b>N.º Certificado</b></label><input id="certNumber" placeholder="ex.: BV-2021-XXXXX"></div>
+          <div><label><b>Entidade emissora</b></label><input id="certIssuer" placeholder="ex.: Bureau Veritas"></div>
         </div>
         <div id="winForense" class="forense"></div>
       </details>
     </section>
-
     <section class="card">
       <h2>Validação Motores</h2>
       <form id="motorForm" class="form-grid">
         <label for="brand"><b>Marca</b><span class="sub-en">(Brand)</span></label>
-        <a class="btn" id="forenseLink" href="forense_regras.html" title="Regras forenses / Forensic rules">
-          Regras Forenses<span class="sub-en">(Forensic Rules)</span></a>
-
         <select id="brand" required>
           <option value="">— Selecionar — / — Select —</option>
           <option value="Yamaha">Yamaha</option>
           <option value="Honda">Honda</option>
-          <option value="Mercury" data-soon="1">Mercury (em breve)</option>
-          <option value="Suzuki" data-soon="1">Suzuki (em breve)</option>
-          <option value="Volvo Penta" data-soon="1">Volvo Penta (em breve)</option>
-          <option value="Evinrude" data-soon="1">Evinrude (em breve)</option>
-          <option value="Selva" data-soon="1">Selva (em breve)</option>
-          <option value="Tohatsu" data-soon="1">Tohatsu (em breve)</option>
+          <option value="Mercury">Mercury</option>
+          <option value="Suzuki">Suzuki</option>
         </select>
-
         <div id="brandFields"></div>
-
         <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span></label>
-        <input id="motorPhoto" type="file" accept="image/*" />
-
+        <input id="motorPhoto" type="file" accept="image/*">
         <button class="btn primary" type="submit" title="Validar Motor / Validate Engine">Validar Motor</button>
       </form>
       <div id="motorResult" class="result"></div>
-
-      <details class="card forense-card">
-        <summary>Detalhe Forense (opcional)</summary>
-        <div id="motorForense" class="forense"></div>
-      </details>
+      <details class="card forense-card"><summary>Detalhe Forense (opcional)</summary><div id="motorForense" class="forense"></div></details>
     </section>
   </main>
 
   <footer class="footer muted">
-    <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.2.1-auth-min — 2025-08-26</p>
+    <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.2.1-auth-min</p>
   </footer>
 
-  <!-- App scripts (depois do GATE) -->
+  <!-- App scripts core (mantém os teus) -->
   <script src="js/validador-win.js?v=418"></script>
   <script src="js/validador-motor.js?v=418"></script>
   <script src="js/utils.js?v=418"></script>
@@ -195,30 +117,18 @@
       const saved = localStorage.getItem('theme') || 'dark';
       const root = document.documentElement;
       root.classList.remove('theme-dark','theme-light');
-      root.classList.add(saved === 'light' ? 'theme-light' : 'theme-dark');
+      root.classList.add(saved==='light' ? 'theme-light' : 'theme-dark');
       document.getElementById('themeBtn')?.addEventListener('click', ()=>{
         const curr = root.classList.contains('theme-light') ? 'light' : 'dark';
-        const next = curr === 'light' ? 'dark' : 'light';
+        const next = curr==='light' ? 'dark' : 'light';
         root.classList.toggle('theme-light');
         root.classList.toggle('theme-dark');
         localStorage.setItem('theme', next);
       });
+      document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
+        try{ await window.supa?.logout?.(); sessionStorage.removeItem('loggedIn'); location.replace('login.html?v=418'); }catch(e){ alert('Falha a terminar sessão: ' + (e.message||e)); }
+      });
     })();
-
-    document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
-      try{
-        await window.supa.logout();
-        sessionStorage.removeItem('loggedIn');
-        location.replace('login.html?v=418');
-      }catch(e){
-        alert('Falha a terminar sessão: ' + (e.message || e));
-      }
-    });
-
-    document.getElementById('forenseLink')?.addEventListener('click', function(){
-      const b = document.getElementById('brand')?.value || '';
-      if (b) this.href = 'forense_regras.html?brand=' + encodeURIComponent(b);
-    });
   </script>
 </body>
 </html>
