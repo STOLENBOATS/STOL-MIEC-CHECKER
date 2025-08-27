@@ -21,16 +21,14 @@
     const ok = typeof e.ok === 'boolean' ? e.ok : undefined;
     const resStr = e.result || (ok === true ? 'Válido' : ok === false ? 'Inválido' : '');
     const reason = e.reason || e.details || e.justification || e.motivo || e.message || '';
-    // Ident pode vir agregado ou separado (model/code/sn)
     const ident = e.ident || [e.model, e.code, e.sn, e.serial].filter(Boolean).join(' ').trim();
-
     return {
       ts: e.ts || e.timestamp || e.date || Date.now(),
       brand: e.brand || e.marca || '',
-      ident: ident,
-      result: resStr,
-      reason: reason,
-      photo: e.photo || e.foto || e.image || ''
+      ident: ident, result: resStr, reason: reason,
+      photo: e.photo || e.foto || e.image || '',
+      certificate: e.certificate || '',
+      issuer: e.issuer || ''
     };
   }
 
@@ -38,7 +36,6 @@
     const CANON_KEY = 'miec_history_motor';
     const canon = parseMaybe(localStorage.getItem(CANON_KEY)) || [];
     const seen = new Set(canon.map(x => `${x.ts}|${x.brand}|${x.ident}`));
-
     const collectionKeys = ['miec_history_motor','motorHistory','historicoMOTOR','history_motor','hist_motor'];
     for(const k of collectionKeys){
       const arr = parseMaybe(localStorage.getItem(k));
@@ -51,7 +48,6 @@
         }
       }
     }
-
     for(let i=0;i<localStorage.length;i++){
       const k = localStorage.key(i);
       if(!k) continue;
@@ -72,16 +68,13 @@
   function render(rows){
     const tbody = ensureTbody();
     if(!tbody) return;
-
     const table = tbody.closest('table');
     const cols = table && table.tHead ? table.tHead.rows[0].cells.length : 6;
-
     if(!rows.length){
       tbody.innerHTML = `<tr><td colspan="${cols}" class="cell-muted">Sem registos.</td></tr>`;
       return;
     }
     rows.sort((a,b)=> (b.ts||0)-(a.ts||0));
-
     tbody.innerHTML = rows.map(r => {
       const badge = r.result && /valid|ok|válid/i.test(r.result)
         ? `<span class="badge ok">${r.result}</span>`
@@ -100,10 +93,5 @@
   }
 
   function boot(){ render(migrateToCanon()); }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
 })();

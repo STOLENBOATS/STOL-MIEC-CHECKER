@@ -1,28 +1,26 @@
-MIEC — Históricos + HistoryService Fix v1.3 (v4.2.1-auth-min)
+MIEC — App Update v1.4 (Cloud Sync + Históricos + Service)
 
-Inclui:
-1) **Históricos v1.2** (já com leitura de `hist_win` / `hist_motor` e mapeamentos, incluindo FOTO):
-   - js/historico-win.js
-   - js/historico-motor.js
-2) **HistoryService v1.1** (WIN passa a aceitar `certificate` e `issuer`).
-3) **Opcional (Cloud Sync)** — suporte a `certificate/issuer` no Supabase:
-   - js/supa-sync.v1.1.js (usa flag de configuração para não partir quem ainda não migrou schema)
-   - sql/schema_delta.sql (adiciona colunas `certificate` e `issuer` a `history_win`).
+Inclui tudo para ligar a App ao Supabase e sincronizar históricos.
 
-Como aplicar (seguro e incremental)
-A) **Sempre** (offline/local + compatível com Patch #2):
-   - Substitui: `js/historico-win.js`, `js/historico-motor.js`, `js/history-service.js`.
-   - (sem mexer no teu validador)
-B) **Se quiseres sincronizar também `certificate/issuer` para a cloud**:
-   1. No Supabase, corre `sql/schema_delta.sql` (adiciona colunas).
-   2. Troca o ficheiro de sync para `js/supa-sync.v1.1.js` (ou renomeia para `supa-sync.js`).
-   3. Em `config.js`, ativa a flag:
-      ```js
-      window.MIEC_CONFIG = {
-        ...,
-        SYNC_EXTRA_WIN_FIELDS: true
-      };
-      ```
+Arquivos
+- js/historico-win.js
+- js/historico-motor.js
+- js/history-service.js
+- js/supa-sync.v1.2.js
+- js/history-recorder-win.js   (opcional)
+- js/history-recorder-motor.js (opcional)
+- js/config.example.js         (preenche com as tuas chaves e renomeia para config.js)
+- js/auth-mini.js              (ganchos simples para login e arranque do sync)
 
-Notas
-- Se **não** aplicares o delta SQL nem ativares a flag, o sync continua a funcionar como antes (sem enviar/receber `certificate/issuer`). Os históricos locais continuam a exibir esses campos normalmente.
+Como usar (resumo)
+1) Copia `js/config.example.js` para `js/config.js` e edita SUPA_URL/SUPA_KEY.
+2) Em cada página que use validação/histórico, garante esta ordem:
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+   <script defer src="js/config.js"></script>
+   <script defer src="js/supa-sync.v1.2.js"></script>
+   <script defer src="js/history-service.js"></script>
+   <!-- (opcionais) -->
+   <script defer src="js/history-recorder-win.js"></script>
+   <script defer src="js/history-recorder-motor.js"></script>
+   <script defer src="js/auth-mini.js"></script>
+3) Depois do login, o `auth-mini.js` chama `HistoryService.startAutoSync()` e a sincronização arranca.
