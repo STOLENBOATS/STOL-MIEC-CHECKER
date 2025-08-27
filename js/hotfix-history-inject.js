@@ -34,7 +34,6 @@
       device: navigator.userAgent
     };
   };
-
   function afterSubmitCopy(key, mapper, saver){
     setTimeout(()=>{
       try {
@@ -44,28 +43,15 @@
         if(row && window.HistoryService && typeof HistoryService[saver] === 'function'){
           HistoryService[saver](row);
           console.debug('[MIEC Hotfix H1]', saver, 'copied from', key, row);
-        } else {
-          console.debug('[MIEC Hotfix H1] nothing to do (missing data or HistoryService)');
         }
-      } catch(e){
-        console.warn('[MIEC Hotfix H1] error:', e);
-      }
+      } catch(e){ console.warn('[MIEC Hotfix H1] error:', e); }
     }, 300);
   }
-
   function boot(){
     const wf = document.getElementById('winForm');
-    if(wf && !wf.__miec_h1){
-      wf.__miec_h1 = true;
-      wf.addEventListener('submit', function(){ afterSubmitCopy('hist_win', mapWin, 'saveWin'); });
-    }
+    if(wf && !wf.__miec_h1){ wf.__miec_h1 = true; wf.addEventListener('submit', ()=>afterSubmitCopy('hist_win', mapWin, 'saveWin')); }
     const mf = document.getElementById('motorForm');
-    if(mf && !mf.__miec_h1){
-      mf.__miec_h1 = true;
-      mf.addEventListener('submit', function(){ afterSubmitCopy('hist_motor', mapMotor, 'saveMotor'); });
-    }
+    if(mf && !mf.__miec_h1){ mf.__miec_h1 = true; mf.addEventListener('submit', ()=>afterSubmitCopy('hist_motor', mapMotor, 'saveMotor')); }
   }
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
