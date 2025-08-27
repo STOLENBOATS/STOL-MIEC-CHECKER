@@ -41,3 +41,10 @@ window.MIEC_CONFIG = Object.assign({}, window.MIEC_CONFIG, {
   SYNC_EXTRA_WIN_FIELDS: true,    // envia/recebe certificate/issuer (WIN)
   SYNC_EXTRA_MOTOR_FIELDS: true   // idem para MOTOR
 });
+
+window.supabaseClient = window.supabaseClient || (
+  window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY
+    ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, { auth: { persistSession: true } })
+    : null
+);
+
