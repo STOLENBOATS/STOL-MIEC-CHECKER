@@ -10,6 +10,7 @@
   <!-- Supabase + Auth pack (ORDEM IMPORTA) -->
 
 <!-- Supabase + Config -->
+<!-- Supabase + Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
 <script defer src="js/config.js?v=418"></script>
 
@@ -21,7 +22,52 @@
 <!-- Sync + Service -->
 <script defer src="js/supa-sync.v1.2.js"></script>
 <script defer src="js/history-service.js"></script>
-  <script>
+
+<!-- AUTO-SYNC / PUSH pós-gravação -->
+<script>
+(function(){
+  function onLoad(cb){ 
+    if (document.readyState === 'complete') cb();
+    else window.addEventListener('load', cb, { once:true });
+  }
+  onLoad(async function boot(){
+    // Espera MIEC_SYNC.client (máx ~10s)
+    let tries = 0;
+    while (!(window.MIEC_SYNC && window.MIEC_SYNC.client) && tries < 40){
+      await new Promise(r=>setTimeout(r,250)); tries++;
+    }
+    const sb = window.MIEC_SYNC?.client || window.supabaseClient;
+    if (!sb) { console.warn('[auto-sync] sem cliente Supabase'); return; }
+
+    // Arranca auto-sync com sessão + em mudanças de sessão
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
+      sb.auth.onAuthStateChange((_ev, sess)=>{
+        if (sess && window.HistoryService?.startAutoSync) HistoryService.startAutoSync();
+      });
+    } catch(e) { console.warn('[auto-sync] getSession falhou:', e); }
+
+    // Empurrão discreto após cada gravação
+    const hs = window.HistoryService || {};
+    if (typeof hs.saveWin === 'function' && !hs.__patched){
+      const origWin   = hs.saveWin.bind(hs);
+      const origMotor = hs.saveMotor.bind(hs);
+      hs.saveWin   = o => { const r = origWin(o);   setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+      hs.saveMotor = o => { const r = origMotor(o); setTimeout(()=>window.MIEC_SYNC?.pushOutbox().catch(()=>{}), 800); return r; };
+      hs.__patched = true;
+    }
+  });
+})();
+</script>
+
+<!-- Proteção de quota (opcional) -->
+<script defer src="js/ls-guard.js?v=1"></script>
+<script defer src="js/cleanup-history.js?v=1"></script>
+
+<!-- Recorders (ativos) -->
+<script defer src="js/history-recorder-win.js"></script>
+<script defer src="js/history-recorder-motor.js"></script>
     
 (function(){
   // Espera até todos os scripts "defer" correrem
