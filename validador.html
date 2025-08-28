@@ -61,7 +61,7 @@
 })();
 </script>
   <script defer src="js/validador-hin-echo.r10.js?v=r10"></script>
-  <script defer src="js/forense-manuf.r10.js?v=r10"></script>
+  <script defer src="js/forense-manuf.r11.js?v=r11"></script>
 </head>
 <body>
   <header class="app-header">
@@ -90,7 +90,7 @@
       <form id="winForm" class="form-grid">
         <label for="winInput"><b>HIN</b> <span class="hint">(Ex.: FR-CNBZA135A612)</span></label>
         <input id="winInput" type="text" placeholder="Ex.: FR-CNBZA135A612 / e.g., FR-CNBZA135A612" required>
-        <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span></label>
+        <label for="winPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span><span class="sub-en">(Photo — optional)</span> <span class="sub-en">(Photo — optional)</span></label>
         <input id="winPhoto" type="file" accept="image/*">
         <label id="certLine" class="checkline" style="display:none;">
           <input id="winCert" type="checkbox">
@@ -103,7 +103,7 @@
       </form>
       <div id="winResult" class="result"></div>
       <details class="card forense-card">
-        <summary>Detalhe Forense (opcional)</summary>
+        <summary>Detalhe Forense (opcional)<span class="sub-en">(Forensic Detail — optional)</span></summary>
         <div class="two-col">
           <div><label><b>N.º Certificado</b></label><input id="certNumber" placeholder="ex.: BV-2021-XXXXX"></div>
           <div><label><b>Entidade emissora</b></label><input id="certIssuer" placeholder="ex.: Bureau Veritas"></div>
@@ -126,12 +126,12 @@
           <option value="Suzuki">Suzuki</option>
         </select>
         <div id="brandFields"></div>
-        <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span></label>
+        <label for="motorPhoto"><b>Fotografia</b> <span class="hint">(opcional)</span> <span class="sub-en">(Photo — optional)</span></label>
         <input id="motorPhoto" type="file" accept="image/*">
         <button class="btn primary" type="submit" title="Validar Motor / Validate Engine">Validar Motor</button>
       </form>
       <div id="motorResult" class="result"></div>
-      <details class="card forense-card"><summary>Detalhe Forense (opcional)</summary><div id="motorForense" class="forense"></div></details>
+      <details class="card forense-card"><summary>Detalhe Forense (opcional)<span class="sub-en">(Forensic Detail — optional)</span></summary><div id="motorForense" class="forense"></div></details>
     </section>
   </main>
 
