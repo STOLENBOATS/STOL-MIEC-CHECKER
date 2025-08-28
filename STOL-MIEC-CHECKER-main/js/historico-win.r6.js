@@ -1,0 +1,50 @@
+// js/historico-win.r6.js
+(async function(){
+  const H = window.MIEC_HIST || {};
+  const headers = ['Data','HIN','Resultado','Justificação','Entidade','Foto'];
+  const tbody = H.ensureTable('histHost', headers);
+  function addRow(r){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${H.fmtTs(r.ts)}</td>
+                    <td>${H.esc(r.win)}</td>
+                    <td>${H.esc(r.result||'')}</td>
+                    <td>${H.esc(r.reason||'')}</td>
+                    <td>${H.esc(r.issuer||'')}</td>
+                    <td>${H.thumbCell(r.photo)}</td>`;
+    tbody.appendChild(tr);
+  }
+  const sb = await H.getClient();
+  let ok=false;
+  if (sb){
+    const uid = await H.getSessionUserId(sb);
+    if (uid){
+      try{
+        const { data, error } = await sb.from('history_win')
+          .select('ts,win,result,reason,photo,issuer')
+          .eq('user_id', uid).order('ts',{ascending:false}).limit(300);
+        if (!error && Array.isArray(data)){ data.forEach(addRow); ok=true; }
+      }catch(e){ console.warn('[hist-win] supabase falhou', e); }
+    }
+  }
+  if(!ok){
+    const local = H.readLocal(['hist_win','miec_history_win_v1','miec_sync_outbox_v1']);
+    const rows = [];
+    for (const it of local){
+      if (!it) continue;
+      const row = it.row || it;
+      if (row.win) rows.push({
+        ts: row.ts, win: row.win,
+        result: row.result||(row.ok===false?'Inválido':'Válido'),
+        reason: row.reason || (typeof row.details==='string'?row.details: Array.isArray(row.details)? row.details.join(' | ') : ''),
+        issuer: row.issuer || row.certIssuer || '',
+        photo: row.photo||''
+      });
+    }
+    rows.sort((a,b)=> (b.ts||0)-(a.ts||0)).forEach(addRow);
+  }
+  if (!tbody.children.length){
+    const tr=document.createElement('tr');
+    const td=document.createElement('td'); td.colSpan=6; td.textContent='Sem registos.';
+    tr.appendChild(td); tbody.appendChild(tr);
+  }
+})();
