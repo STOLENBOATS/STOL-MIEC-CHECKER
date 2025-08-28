@@ -1,12 +1,8 @@
 // js/history-probe.v1.js
-// Mostra o que os gravadores estão (ou não) a ver e permite inspecionar rapidamente.
-// Adiciona listeners de submit/click e observers aos containers de resultados.
-
 (function(){
   const OUTBOX_KEY = 'miec_sync_outbox_v1';
   const g = window;
   function q(sel, ctx=document){ return ctx.querySelector(sel); }
-  function qa(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
   function norm(x){ return (x||'').toString().trim(); }
   function readOutbox(){ try{ return JSON.parse(localStorage.getItem(OUTBOX_KEY)||'[]'); }catch{ return []; } }
   function dump(){
@@ -24,41 +20,22 @@
     console.table(o);
     return o;
   }
-
   function logEvent(name, data){ try{ console.log('[PROBE]', name, data||''); }catch{} }
-
   function watch(){
-    // Forms submit
     ['winForm','motorForm'].forEach(id=>{
       const el = document.getElementById(id);
-      if (el){
-        el.addEventListener('submit', e=>logEvent('submit:'+id), {capture:true});
-      }
+      if (el){ el.addEventListener('submit', e=>logEvent('submit:'+id), {capture:true}); }
     });
-    // Button clicks
     const wb = q('#winForm button[type=submit], #winForm .btn.primary');
     const mb = q('#motorForm button[type=submit], #motorForm .btn.primary');
     wb && wb.addEventListener('click', ()=>logEvent('click:winButton'), {capture:true});
     mb && mb.addEventListener('click', ()=>logEvent('click:motorButton'), {capture:true});
-
-    // Result observers
     const wr = q('#winResult'), mr = q('#motorResult');
-    if (wr){
-      new MutationObserver(()=>logEvent('mut:winResult', wr.innerText.slice(0,80))).observe(wr,{childList:true,subtree:true,characterData:true});
-    }
-    if (mr){
-      new MutationObserver(()=>logEvent('mut:motorResult', mr.innerText.slice(0,80))).observe(mr,{childList:true,subtree:true,characterData:true});
-    }
+    if (wr){ new MutationObserver(()=>logEvent('mut:winResult', wr.innerText.slice(0,80))).observe(wr,{childList:true,subtree:true,characterData:true}); }
+    if (mr){ new MutationObserver(()=>logEvent('mut:motorResult', mr.innerText.slice(0,80))).observe(mr,{childList:true,subtree:true,characterData:true}); }
     console.log('[PROBE] watchers armed.');
   }
-
-  // Expose helpers
-  g.MIEC_PROBE = {
-    dump,
-    outbox(){ return readOutbox(); },
-    clear(){ localStorage.removeItem(OUTBOX_KEY); console.warn('[PROBE] outbox limpo'); },
-  };
-
+  g.MIEC_PROBE = { dump, outbox(){ return readOutbox(); }, clear(){ localStorage.removeItem(OUTBOX_KEY); console.warn('[PROBE] outbox limpo'); } };
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', ()=>{ dump(); watch(); }, {once:true});
   else { dump(); watch(); }
 })();

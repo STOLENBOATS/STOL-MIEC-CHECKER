@@ -1,0 +1,12 @@
+/* validator-gate.js (v420b debug/hold) */
+(function(){
+  var Q=new URLSearchParams(location.search),DEBUG=Q.has('debug'),HOLD=parseInt(Q.get('hold')||'0',10)||0;
+  function overlay(m){if(!DEBUG)return;var el=document.getElementById('gate-overlay');if(!el){el=document.createElement('div');el.id='gate-overlay';el.style.cssText='position:fixed;z-index:999999;top:8px;right:8px;max-width:48vw;background:#111827;color:#E5E7EB;padding:10px 12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);font:12px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap';document.body.appendChild(el);}el.textContent=m;}
+  function add(s){return new Promise(function(r,j){var e=document.createElement('script');e.src=s;e.defer=true;e.onload=r;e.onerror=j;document.head.appendChild(e);});}
+  async function ensure(){if(!window.supabase)await add("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0");if(!(window.SUPABASE_URL&&window.SUPABASE_ANON_KEY))await add("js/config.js?v=418");if(!window.SupaAuth)await add("js/supa.js?v=418");}
+  async function ready(fn){const t0=Date.now();while(!(window.SupaAuth&&window.SupaAuth[fn])&&Date.now()-t0<5000){await new Promise(r=>setTimeout(r,20));}return !!(window.SupaAuth&&window.SupaAuth[fn]);}
+  function clean(){try{var base=location.pathname+(/\?/.test(location.search)?location.search.replace(/([?#].*)/,''):"?v=418");history.replaceState({},'',base);}catch(_){}} 
+  async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function gate(){try{overlay('gate: boot…');await ensure();if(!await ready('finalizeFromUrl'))throw new Error('auth-not-ready');overlay('gate: finalizeFromUrl…');await window.SupaAuth.finalizeFromUrl({storeSession:true,persistSession:true});clean();await sleep(25);let s=(await window.SupaAuth.getSession()).data?.session;if(!s){await sleep(250);s=(await window.SupaAuth.getSession()).data?.session;}overlay('gate: session '+(s?'OK':'MISSING'));if(HOLD){overlay('gate: hold '+HOLD+'ms');await sleep(HOLD);}if(!s){overlay('gate: redirect → login');location.replace('login.html?v=418');return;}overlay('gate: stay on validador ✓');try{document.dispatchEvent(new CustomEvent('supa:ready'));}catch(_){}}catch(e){console.warn('[validator-gate]',e);overlay('gate: ERROR '+(e?.message||e));if(HOLD){await sleep(HOLD);}try{clean();}catch(_){ }location.replace('login.html?v=418');}}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',gate,{once:true});}else{gate();}
+})();
