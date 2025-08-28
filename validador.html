@@ -11,8 +11,7 @@
   <!-- Supabase + Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
   <script defer src="js/config.js?v=418"></script>
-  <script defer src="js/sync-hist-ls-to-supabase.v1.js"></script>
-
+ 
   
   <!-- (se usas) autenticação própria -->
   <script defer src="js/supa-auth.js?v=1"></script>
@@ -22,6 +21,32 @@
   <!-- Sync + Service -->
   <script defer src="js/supa-sync.v1.2.js"></script>
   <script defer src="js/history-service.js"></script>
+
+  <script>
+(function(){
+  if (window.__miecAutosyncStarted) return; // evita duplicar
+  window.__miecAutosyncStarted = true;
+
+  function onLoad(cb){ document.readyState==='complete' ? cb() : addEventListener('load', cb, {once:true}); }
+
+  onLoad(async function(){
+    try{
+      const S = window.MIEC_SYNC;
+      if (!S || !S.client) return;
+
+      const { data:{ session } } = await S.client.auth.getSession();
+      if (!session) return;
+
+      // 1) push outbox UMA VEZ (não muda ts)
+      await S.pushOutbox().catch(()=>{});
+
+      // 2) opcional: push periódico (2 min). Remove se não precisares.
+      setInterval(()=>S.pushOutbox().catch(()=>{}), 120000);
+    }catch(_){}
+  });
+})();
+</script>
+
 
   <!-- Codebooks dinâmicos + regras HIN -->
   
