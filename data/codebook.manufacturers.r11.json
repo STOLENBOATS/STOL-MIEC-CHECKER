@@ -1,0 +1,519 @@
+{
+  "version": "2025-08-29/r11",
+  "generated_at": "2025-08-28T23:17:18.135793Z",
+  "note": "Seed mapping of major manufacturers to USCG MICs (when available). EU brands use their US importer MIC. Portuguese brands included without MIC (to be filled when available).",
+  "countries": {
+    "PT": {
+      "name_pt": "Portugal",
+      "name_en": "Portugal"
+    },
+    "FR": {
+      "name_pt": "França",
+      "name_en": "France"
+    },
+    "IT": {
+      "name_pt": "Itália",
+      "name_en": "Italy"
+    },
+    "GB": {
+      "name_pt": "Reino Unido",
+      "name_en": "United Kingdom"
+    },
+    "DE": {
+      "name_pt": "Alemanha",
+      "name_en": "Germany"
+    },
+    "SE": {
+      "name_pt": "Suécia",
+      "name_en": "Sweden"
+    },
+    "FI": {
+      "name_pt": "Finlândia",
+      "name_en": "Finland"
+    },
+    "DK": {
+      "name_pt": "Dinamarca",
+      "name_en": "Denmark"
+    },
+    "ES": {
+      "name_pt": "Espanha",
+      "name_en": "Spain"
+    },
+    "US": {
+      "name_pt": "Estados Unidos",
+      "name_en": "United States"
+    },
+    "NO": {
+      "name_pt": "Noruega",
+      "name_en": "Norway"
+    }
+  },
+  "manufacturers_index": [
+    {
+      "country": "FR",
+      "brand": "Bénéteau",
+      "mic": "BEY",
+      "company": "Beneteau Group America Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/bey/beneteau-group-america-inc/"
+      ]
+    },
+    {
+      "country": "FR",
+      "brand": "Jeanneau",
+      "mic": "IRI",
+      "company": "Beneteau Group America Inc (Jeanneau)",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://hindecoder.com/manufacturers-directory/detail.php?MIC=IRI"
+      ]
+    },
+    {
+      "country": "GB",
+      "brand": "Sunseeker",
+      "mic": "XSK",
+      "company": "Sunseeker USA Sales Co Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/xsk/sunseeker/"
+      ]
+    },
+    {
+      "country": "GB",
+      "brand": "Princess Yachts",
+      "mic": "PCY",
+      "company": "Princess Marine",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/pcy/princess-marine/"
+      ]
+    },
+    {
+      "country": "GB",
+      "brand": "Fairline",
+      "mic": "XER",
+      "company": "Fairline Boats of North Amer.",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/xer/fairline-boats-of-north-amer/"
+      ]
+    },
+    {
+      "country": "DE",
+      "brand": "Bavaria Yachts",
+      "mic": "BAV",
+      "company": "Bavaria Yachts USA",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://hindecoder.com/manufacturers-directory/detail.php?MIC=BAV"
+      ]
+    },
+    {
+      "country": "FR",
+      "brand": "Dufour Yachts",
+      "mic": "DUF",
+      "company": "Dufour Yachts USA Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/duf/dufour-yachts-usa-inc/"
+      ]
+    },
+    {
+      "country": "DE",
+      "brand": "Hanse Yachts",
+      "mic": "HAN",
+      "company": "Hanse US LLC",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://hindecoder.com/manufacturers-directory/detail.php?MIC=HAN"
+      ]
+    },
+    {
+      "country": "DK",
+      "brand": "X-Yachts",
+      "mic": "XYA",
+      "company": "X-Yachts USA",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/xya/x-yachts/"
+      ]
+    },
+    {
+      "country": "FI",
+      "brand": "Nautor Swan",
+      "mic": "NTP",
+      "company": "Nautor's Swan Pacific",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/ntp/nautor-swan/"
+      ]
+    },
+    {
+      "country": "SE",
+      "brand": "Hallberg-Rassy",
+      "mic": "HRV",
+      "company": "Hallberg-Rassy (US importer)",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/hrv/hallberg-rassy/"
+      ]
+    },
+    {
+      "country": "IT",
+      "brand": "Azimut",
+      "mic": "XAX",
+      "company": "Azimut Yachts (DBA)",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/xax/azimut-yachts-dba/"
+      ]
+    },
+    {
+      "country": "IT",
+      "brand": "Ferretti / Pershing",
+      "mic": "XFA",
+      "company": "Ferretti Group USA Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://www.uscgboating.org/content/manufacturers-identification-detail.php?id=14405"
+      ]
+    },
+    {
+      "country": "IT",
+      "brand": "Sanlorenzo",
+      "mic": "SLZ",
+      "company": "Sanlorenzo of the Americas LLC",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/slz/sanlorenzo-of-the-americas-llc/"
+      ]
+    },
+    {
+      "country": "FR",
+      "brand": "Fountaine Pajot",
+      "mic": "FPA",
+      "company": "Fountaine Pajot (varies; see notes)",
+      "source": "US_MIC",
+      "verified": false,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/fpa/fountaine-pajot/",
+        "https://boathistoryreport.com/directory/manufacturers/xcp/catamaran-sales-inc/"
+      ]
+    },
+    {
+      "country": "DE",
+      "brand": "Dehler",
+      "mic": "DEH",
+      "company": "Dehler North America",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/deh/dehler-north-america/"
+      ]
+    },
+    {
+      "country": "FI",
+      "brand": "Baltic Yachts",
+      "mic": "XYB",
+      "company": "Baltic Yachts East",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/xyb/baltic-yachts-east/"
+      ]
+    },
+    {
+      "country": "NO",
+      "brand": "Nimbus",
+      "mic": null,
+      "company": "Nimbus Group",
+      "source": "EU_only",
+      "verified": false,
+      "urls": [
+        "https://www.nimbus.se/"
+      ]
+    },
+    {
+      "country": "NO",
+      "brand": "Windy Boats",
+      "mic": null,
+      "company": "Windy Scandinavia",
+      "source": "EU_only",
+      "verified": false,
+      "urls": [
+        "https://www.windyboats.com/"
+      ]
+    },
+    {
+      "country": "DE",
+      "brand": "Fjord (Hanse)",
+      "mic": "FRD",
+      "company": "Hanse Yachts US LLC",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/frd/fjord/"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Fibramar",
+      "mic": null,
+      "company": "Fibramar",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Hydrosport",
+      "mic": null,
+      "company": "Hydrosport",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Vanguard Marine",
+      "mic": null,
+      "company": "Vanguard",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Atlantic Craft",
+      "mic": null,
+      "company": "Atlantic Craft",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "San Remo",
+      "mic": null,
+      "company": "San Remo",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Composite Solutions",
+      "mic": null,
+      "company": "Composite Solutions",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Nautiber",
+      "mic": null,
+      "company": "Nautiber",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://nautiber.pt/"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Starfisher (GB Portugal)",
+      "mic": null,
+      "company": "GB Portugal Lda / Starfisher",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://press.beneteau-group.com/news/constitution-of-portuguese-industrial-pole-with-the-acquisition-of-rodman-lusitania-d111-49529.html"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Rodman Lusitania",
+      "mic": null,
+      "company": "GB Portugal Lda",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://press.beneteau-group.com/news/constitution-of-portuguese-industrial-pole-with-the-acquisition-of-rodman-lusitania-d111-49529.html"
+      ]
+    },
+    {
+      "country": "PT",
+      "brand": "Vanguard (RIBs)",
+      "mic": null,
+      "company": "Vanguard",
+      "source": "PT_local",
+      "verified": false,
+      "urls": [
+        "https://www.yachtall.com/en/boat-builders-shipyards/portugal"
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Sea Ray",
+      "mic": "SER",
+      "company": "Sea Ray Boats",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://uscgboating.org/content/recalls.php?company=41161791391336&model=&pageNum_allRecalls=57&totalRows_allRecalls=1522&year="
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Boston Whaler",
+      "mic": "BWC",
+      "company": "Boston Whaler Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://uscgboating.org/content/manufacturers-identification.php?pageNum_manufacturers=50&totalRows_manufacturers=16125"
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Bayliner",
+      "mic": "BLB",
+      "company": "Brunswick Family Boat Co Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/blb/bayliner/"
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Grady-White",
+      "mic": "NTL",
+      "company": "Grady-White Boats Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/ntl/grady-white/"
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "MasterCraft",
+      "mic": "MB2",
+      "company": "Malibu/MC (varies)",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://uscgboating.org/content/recalls.php?company=rrmjhvsiatxghx&model=&pageNum_allRecalls=28&totalRows_allRecalls=1502&year="
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Malibu Boats",
+      "mic": "MB2",
+      "company": "Malibu Boats Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://uscgboating.org/content/recalls.php?company=rrmjhvsiatxghx&model=&pageNum_allRecalls=1502&totalRows_allRecalls=1502&year="
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Tracker Boats",
+      "mic": "AJF",
+      "company": "Tracker Marine L.P.",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://boathistoryreport.com/directory/manufacturers/ajf/tracker-marine-lp/"
+      ]
+    },
+    {
+      "country": "US",
+      "brand": "Robalo",
+      "mic": "ROB",
+      "company": "Robalo Marine",
+      "source": "US_MIC",
+      "verified": false,
+      "urls": []
+    },
+    {
+      "country": "US",
+      "brand": "Chaparral",
+      "mic": "FGB",
+      "company": "Chaparral Boats Inc",
+      "source": "US_MIC",
+      "verified": false,
+      "urls": []
+    },
+    {
+      "country": "US",
+      "brand": "Four Winns",
+      "mic": "4WN",
+      "company": "Four Winns Inc",
+      "source": "US_MIC",
+      "verified": true,
+      "urls": [
+        "https://uscgboating.org/content/manufacturers-identification.php"
+      ]
+    }
+  ],
+  "manufacturers_cin": {
+    "FR|BEY": "Bénéteau",
+    "FR|IRI": "Jeanneau",
+    "GB|XSK": "Sunseeker",
+    "GB|PCY": "Princess Yachts",
+    "GB|XER": "Fairline",
+    "DE|BAV": "Bavaria Yachts",
+    "FR|DUF": "Dufour Yachts",
+    "DE|HAN": "Hanse Yachts",
+    "DK|XYA": "X-Yachts",
+    "FI|NTP": "Nautor Swan",
+    "SE|HRV": "Hallberg-Rassy",
+    "IT|XAX": "Azimut",
+    "IT|XFA": "Ferretti / Pershing",
+    "IT|SLZ": "Sanlorenzo",
+    "FR|FPA": "Fountaine Pajot",
+    "DE|DEH": "Dehler",
+    "FI|XYB": "Baltic Yachts",
+    "DE|FRD": "Fjord (Hanse)",
+    "US|SER": "Sea Ray",
+    "US|BWC": "Boston Whaler",
+    "US|BLB": "Bayliner",
+    "US|NTL": "Grady-White",
+    "US|MB2": "Malibu Boats",
+    "US|AJF": "Tracker Boats",
+    "US|ROB": "Robalo",
+    "US|FGB": "Chaparral",
+    "US|4WN": "Four Winns"
+  }
+}
