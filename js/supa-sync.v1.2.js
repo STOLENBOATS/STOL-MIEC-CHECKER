@@ -76,3 +76,62 @@
     syncNow: sb ? syncNow : noop
   };
 })();
+// injected safe pushOutbox
+
+async function pushOutbox(){
+  try{
+    const raw = JSON.parse(localStorage.getItem('miec_sync_outbox_v1')||'[]');
+    if (!raw.length) return { ok:true, pushed: 0 };
+    const { data:userData } = await client.auth.getUser();
+    const user_id = userData?.user?.id;
+    if (!user_id) return { ok:false, reason:'no-user' };
+
+    const wins = [], motors = [];
+    for (const item of raw){
+      if (item.type === 'win'){
+        wins.push({
+          user_id,
+          ts: item.ts,
+          win: (item.win||'').trim(),
+          result: item.result||null,
+          reason: item.reason||null,
+          photo: item.photo||null,
+          certificate: item.certificate||null,
+          issuer: item.issuer||null,
+          version: item.version||null,
+          device: item.device||null,
+        });
+      }else if (item.type === 'motor'){
+        motors.push({
+          user_id,
+          ts: item.ts,
+          brand: (item.brand||'').trim(),
+          ident: (item.ident||'').trim(),
+          result: item.result||null,
+          reason: item.reason||null,
+          photo: item.photo||null,
+          certificate: item.certificate||null,
+          issuer: item.issuer||null,
+          version: item.version||null,
+          device: item.device||null,
+        });
+      }
+    }
+
+    if (wins.length){
+      const { error } = await client.from('history_win').upsert(wins, { onConflict:'user_id,ts,win' });
+      if (error) console.warn('[sync] upsert wins error', error);
+    }
+    if (motors.length){
+      const { error } = await client.from('history_motor').upsert(motors, { onConflict:'user_id,ts,brand,ident' });
+      if (error) console.warn('[sync] upsert motors error', error);
+    }
+
+    localStorage.setItem('miec_sync_outbox_v1', '[]');
+    return { ok:true, pushed: wins.length + motors.length };
+  }catch(e){
+    console.warn('[sync] pushOutbox fail', e);
+    return { ok:false, reason: e.message||String(e) };
+  }
+}
+

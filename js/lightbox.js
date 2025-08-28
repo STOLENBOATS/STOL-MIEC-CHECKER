@@ -1,4 +1,3 @@
-
 // Minimal Lightbox for history thumbs
 (function(){
   function ensureOverlay(){
@@ -25,4 +24,4 @@
     const full = t.getAttribute('data-full') || t.src;
     if (full) { ev.preventDefault(); open(full); }
   });
-})();
+})(); 

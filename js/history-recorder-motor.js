@@ -1,3 +1,4 @@
+(function(){ if (window.__LOADED_HISTORY_RECORDER_MOTOR.JS) return; window.__LOADED_HISTORY_RECORDER_MOTOR.JS=true;
 // history-recorder-motor.js — Pro v2 (ativo)
 // Captura submissão do formulário de Motor e grava via HistoryService.saveMotor()
 (function(){
@@ -113,4 +114,5 @@
     console.log('history-recorder-motor.js ativo.');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
 })();

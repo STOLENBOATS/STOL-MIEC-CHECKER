@@ -1,3 +1,4 @@
+(function(){ if (window.__LOADED_HISTORY_RECORDER_WIN.JS) return; window.__LOADED_HISTORY_RECORDER_WIN.JS=true;
 // history-recorder-win.js — Pro v2 (ativo)
 // Captura submissão do formulário de HIN e grava via HistoryService.saveWin()
 (function(){
@@ -98,4 +99,5 @@
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
 })();
