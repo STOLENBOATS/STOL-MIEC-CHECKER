@@ -1,40 +1,20 @@
-MIEC — App Bundle v1.5 (Indispensável)
-===========================================
-Tudo o que precisas para a App registar históricos (com foto) e sincronizar com o Supabase, evitando o erro de quota.
+MIEC — History Pages Fix r5
+===========================
 
-Inclui
-- js/supa-sync.v1.2.js        → Sync (WIN+MOTOR), suporta certificate/issuer via flags.
-- js/history-service.js        → API local + outbox → chama o sync.
-- js/ls-guard.js               → evita QuotaExceededError (limita tamanho dos hist_*).
-- js/cleanup-history.js        → higieniza hist_* no load.
-- js/hotfix-history-inject.js  → se o teu validador só gravar em hist_*, copia p/ formato canónico e envia p/ cloud.
-- js/historico-win.js          → renderer tolerante (lê hist_win + miec_history_win, com foto).
-- js/historico-motor.js        → renderer tolerante (lê hist_motor + miec_history_motor, com foto).
-- js/config.example.js         → copia para config.js e preenche SUPA_URL/SUPA_KEY.
+Inclui JS robustos que:
+- Buscam os registos diretamente no Supabase (por user_id da sessão) e ordenam por ts desc;
+- Caso não haja sessão/erro, fazem fallback a localStorage (miec_history_* ou miec_sync_outbox_v1);
+- Criam a tabela automaticamente se o HTML não a tiver pronto (#rows).
 
-Como instalar
-1) Copia tudo para a pasta `js/` do teu projeto.
-2) No `<head>` do **validador.html**, antes dos recorders, garante esta ordem:
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-   <script defer src="js/config.js"></script>
-   <script defer src="js/supa-sync.v1.2.js"></script>
-   <script defer src="js/history-service.js"></script>
-   <script defer src="js/ls-guard.js?v=1"></script>
-   <script defer src="js/cleanup-history.js?v=1"></script>
-   <script defer src="js/hotfix-history-inject.js?v=H1"></script>
-   <!-- já existiam -->
-   <script defer src="js/history-recorder-win.js"></script>
-   <script defer src="js/history-recorder-motor.js"></script>
-3) Em `historico_*.html`, só precisas de carregar os respectivos `historico-*.js` (já estavam, substitui pelos desta pasta).
-4) Cria `js/config.js` a partir do exemplo e preenche SUPA_URL/SUPA_KEY. Ativa as flags se quiseres enviar certificate/issuer:
-   window.MIEC_CONFIG = {
-     SUPA_URL: 'https://<project>.supabase.co',
-     SUPA_KEY: '<anon-key>',
-     APP_VERSION: 'v4.2.1-auth-min — 2025-08-26',
-     SYNC_EXTRA_WIN_FIELDS: true,
-     SYNC_EXTRA_MOTOR_FIELDS: true
-   };
+Como usar (em 'historico_win.html' e 'historico_motor.html'):
+-----------------------------------------------------------
+No <head>, garanta que já carrega o supabase-js e 'js/config.js' (onde tens SUPABASE_URL/ANON_KEY).
+Depois acrescente, **nesta ordem**:
 
-Teste rápido
-- Faz 1 validação WIN/MOTOR com foto.
-- Verifica no histórico local e no Supabase (Table Editor). Se quiseres, força:  await MIEC_SYNC.syncNow()
+  <script defer src="js/history-common.v1.js"></script>
+  <!-- numa página: -->
+  <script defer src="js/historico-win.r5.js"></script>
+  <!-- na outra página: -->
+  <script defer src="js/historico-motor.r5.js"></script>
+
+Não precisa alterar o resto do HTML; se não existir <tbody id="rows">, o script cria a tabela.
