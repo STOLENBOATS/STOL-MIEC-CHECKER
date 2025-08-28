@@ -1,5 +1,0 @@
-M.I.E.C. v3.9 — 2025-08-20
-- **Volvo Penta**: validação ativa (diesel/gas patterns, P/N 6–8 dígitos, S/N 7–10 dígitos).
-- **Regras Forenses**: notas adicionais para Volvo Penta.
-- **HIN**: mantém lógica pré-1998 com certificado apenas quando anos resolvidos < 1998.
-- Preparado para GitHub: README, .gitignore, estrutura consistente.
