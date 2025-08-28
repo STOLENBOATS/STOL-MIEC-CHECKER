@@ -1,0 +1,6 @@
+country_code,mic,manufacturer_name,city,status,source,source_url,source_date,verified,notes
+FR,CNB,Chantiers Navals de Bordeaux,Bordeaux,active,Ministère (FR),https://www.mer.gouv.fr/,2025-08-28,false,Exemplo - confirmar
+GB,ABC,Boatbuilder Example,,active,British Marine,https://www.britishmarine.co.uk/mic-codes,2025-08-28,false,Exemplo - substituir
+ES,ABC,Fabricante Ejemplo,,active,MITMA,https://www.transportes.gob.es/,2025-08-28,false,Exemplo - substituir
+NL,ABC,Shipyard Example,,active,HISWA-RECRON,https://www.hiswarecron.nl/,2025-08-28,false,Exemplo - substituir
+PT,ABC,Fabricante Exemplo,,active,ACAP/APICAN,,2025-08-28,false,Exemplo - substituir

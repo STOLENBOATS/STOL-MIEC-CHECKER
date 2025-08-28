@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt">
+<meta charset="utf-8">
+<title>MIEC • CSV → Codebook JSON</title>
+<style>
+body{font:14px/1.4 system-ui,Segoe UI,Roboto,Arial;padding:16px;max-width:980px;margin:auto}
+textarea{width:100%;height:260px}
+pre{background:#f6f8fa;padding:10px;border-radius:8px;overflow:auto;max-height:320px}
+.btn{padding:.6rem .9rem;border:1px solid #ccc;border-radius:8px;cursor:pointer;background:#fff;margin-right:.5rem}
+.btn.primary{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+small.mut{opacity:.7}
+</style>
+<h1>MIEC • Conversor de fabricantes (MIC)</h1>
+<p>Cola abaixo um CSV com colunas: <code>country_code,mic,manufacturer_name,city,status,source,source_url,source_date,verified,notes</code>.</p>
+<div class="row">
+  <button class="btn" id="loadTpl">Carregar template</button>
+  <button class="btn primary" id="convert">Converter</button>
+  <button class="btn" id="download">Descarregar JSON</button>
+</div>
+<p><small class="mut">Dica: obtém códigos em <a href="https://www.britishmarine.co.uk/mic-codes" target="_blank">British Marine (UK)</a>, <a href="https://uscgboating.org/content/manufacturers-identification.php" target="_blank">USCG MIC</a>, <a href="https://www.hiswarecron.nl/kennisbank/5942/aanvraag-fabrikantencode" target="_blank">HISWA (NL)</a>, <a href="https://www.transportes.gob.es/recursos_mfom/comodin/recursos/infoweb_codigomic.pdf" target="_blank">MITMA (ES)</a> e Ministère (FR).</small></p>
+<textarea id="csv"></textarea>
+<h2>Pré-visualização</h2>
+<pre id="out"></pre>
+<script>
+function csvToArr(s){
+  const lines = s.trim().split(/\r?\n/);
+  const head = lines.shift().split(',');
+  const idx = k => head.indexOf(k);
+  return lines.map(ln=>{
+    const cols = ln.split(',');
+    return {
+      cc: cols[idx('country_code')]?.trim().toUpperCase(),
+      mic: cols[idx('mic')]?.trim().toUpperCase(),
+      name: cols[idx('manufacturer_name')]?.trim(),
+      city: cols[idx('city')]?.trim(),
+      status: cols[idx('status')]?.trim()||'active',
+      source: cols[idx('source')]?.trim()||'',
+      source_url: cols[idx('source_url')]?.trim()||'',
+      source_date: cols[idx('source_date')]?.trim()||'',
+      verified: /^(true|1|yes|y)$/i.test(cols[idx('verified')]||''),
+      notes: cols[idx('notes')]?.trim()||''
+    };
+  });
+}
+function buildJson(rows){
+  const mapping = {};
+  const index = [];
+  for (const r of rows){
+    if (!r.cc || !r.mic || !r.name) continue;
+    mapping[r.cc + '|' + r.mic] = r.name + (r.city?(' — '+r.city):'');
+    index.push({
+      key: r.cc + '|' + r.mic,
+      country: r.cc, mic: r.mic, name: r.name, city: r.city||null,
+      status: r.status||'active',
+      source: r.source||'', source_url: r.source_url||'',
+      source_date: r.source_date||'',
+      verified: !!r.verified, notes: r.notes||''
+    });
+  }
+  return { manufacturers_cin: mapping, manufacturers_index: index };
+}
+const tpl = `country_code,mic,manufacturer_name,city,status,source,source_url,source_date,verified,notes
+FR,CNB,Chantiers Navals de Bordeaux,Bordeaux,active,Ministère (FR),https://www.mer.gouv.fr/,2025-08-28,false,Exemplo - confirmar
+GB,ABC,Boatbuilder Example,,active,British Marine,https://www.britishmarine.co.uk/mic-codes,2025-08-28,false,Exemplo - substituir
+ES,ABC,Fabricante Ejemplo,,active,MITMA,https://www.transportes.gob.es/,2025-08-28,false,Exemplo - substituir
+NL,ABC,Shipyard Example,,active,HISWA-RECRON,https://www.hiswarecron.nl/,2025-08-28,false,Exemplo - substituir
+PT,ABC,Fabricante Exemplo,,active,ACAP/APICAN,,2025-08-28,false,Exemplo - substituir`;
+const elCsv = document.getElementById('csv');
+const elOut = document.getElementById('out');
+document.getElementById('loadTpl').onclick = ()=>{ elCsv.value = tpl; };
+document.getElementById('convert').onclick = ()=>{
+  try{
+    const rows = csvToArr(elCsv.value);
+    const out = buildJson(rows);
+    elOut.textContent = JSON.stringify(out, null, 2);
+  }catch(e){ elOut.textContent = 'Erro: '+e.message; }
+};
+document.getElementById('download').onclick = ()=>{
+  try{
+    const rows = csvToArr(elCsv.value);
+    const out = buildJson(rows);
+    const blob = new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'codebook.manufacturers.json';
+    a.click();
+  }catch(e){ alert('Erro: '+e.message); }
+};
+</script>
+</html>

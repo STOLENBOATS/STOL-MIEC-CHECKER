@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "countries": {
     "PT": {
       "pt": "Portugal",
@@ -13,6 +13,10 @@
       "pt": "França",
       "en": "France"
     },
+    "GB": {
+      "pt": "Reino Unido",
+      "en": "United Kingdom"
+    },
     "NL": {
       "pt": "Países Baixos",
       "en": "Netherlands"
@@ -24,22 +28,30 @@
     "IT": {
       "pt": "Itália",
       "en": "Italy"
-    },
-    "GB": {
-      "pt": "Reino Unido",
-      "en": "United Kingdom"
-    },
-    "US": {
-      "pt": "Estados Unidos",
-      "en": "United States"
     }
   },
   "manufacturers_cin": {
     "FR|CNB": "Chantiers Navals de Bordeaux — Bordeaux (FR)",
-    "PT|ABC": "Fabricante Exemplo — Portugal (PT)",
-    "ES|ABC": "Fabricante Exemplo — España (ES)",
-    "NL|XYY": "Shipyard Example — Netherlands (NL)"
+    "GB|RYA": "Royal Yachting Association — One-off WIN allocation (UK)",
+    "NL|HIS": "HISWA/RECRON Assigned Code — Placeholder",
+    "ES|MIT": "MITMA Assigned Code — Placeholder",
+    "PT|API": "ACAP/APICAN Assigned Code — Placeholder"
   },
+  "manufacturers_index": [
+    {
+      "key": "FR|CNB",
+      "country": "FR",
+      "mic": "CNB",
+      "name": "Chantiers Navals de Bordeaux",
+      "city": "Bordeaux",
+      "status": "active",
+      "source": "Ministère (FR) / industry directories",
+      "source_url": "https://www.mer.gouv.fr/",
+      "source_date": "2025-08-28",
+      "verified": false,
+      "notes": "Exemplo para teste. Substituir por entrada confirmada."
+    }
+  ],
   "engine_brands": [
     "Yamaha",
     "Honda",
@@ -50,5 +62,5 @@
     "Selva",
     "Tohatsu"
   ],
-  "notes": "Este codebook é um ponto de partida. Substitui os fabricantes por dados oficiais. A chave deve ser 'CC|MIC' para formato UE/CIN (ex.: FR|CNB)."
+  "notes": "Preencha manufacturers_cin e manufacturers_index com dados confirmados. Use os templates CSV e a página de conversão em tools/."
 }
