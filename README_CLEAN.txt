@@ -1,16 +1,5 @@
-MIEC CleanPack r7 — Conteúdo mínimo para Git
-
-Mantido:
-- validador.html, historico_win.html, historico_motor.html, login.html, config.html
-- css/styles.css
-- images/logo-pm.jpg, images/favicon.png
-- js/ (apenas os necessários)
-
-Removido:
-- recorders failsafe/debug/hotfix/auto-sync patch
-- html_samples/
-- pasta duplicada STOL-MIEC-CHECKER-main/
-
-Includes importantes:
-- nos históricos: history-common.v1.js + historico-*.r6b.js
-- no validador: apenas history-recorder-win.js e history-recorder-motor.js
+MIEC CleanPack r9
+- Historico pages não carregam sync/recorders/serviços; apenas common + script específico.
+- Validador com auto-sync seguro (pushOutbox sem recarimbar ts e UPSERT no servidor).
+- Lightbox para fotos nos históricos.
+- Ordem de <script> garantida; ?v=r9 para cache-busting.
