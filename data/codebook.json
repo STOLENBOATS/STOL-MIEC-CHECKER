@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "countries": {
+    "PT": {
+      "pt": "Portugal",
+      "en": "Portugal"
+    },
+    "ES": {
+      "pt": "Espanha",
+      "en": "Spain"
+    },
+    "FR": {
+      "pt": "França",
+      "en": "France"
+    },
+    "NL": {
+      "pt": "Países Baixos",
+      "en": "Netherlands"
+    },
+    "DE": {
+      "pt": "Alemanha",
+      "en": "Germany"
+    },
+    "IT": {
+      "pt": "Itália",
+      "en": "Italy"
+    },
+    "GB": {
+      "pt": "Reino Unido",
+      "en": "United Kingdom"
+    },
+    "US": {
+      "pt": "Estados Unidos",
+      "en": "United States"
+    }
+  },
+  "manufacturers_cin": {
+    "FR|CNB": "Chantiers Navals de Bordeaux — Bordeaux (FR)",
+    "PT|ABC": "Fabricante Exemplo — Portugal (PT)",
+    "ES|ABC": "Fabricante Exemplo — España (ES)",
+    "NL|XYY": "Shipyard Example — Netherlands (NL)"
+  },
+  "engine_brands": [
+    "Yamaha",
+    "Honda",
+    "Mercury",
+    "Suzuki",
+    "Volvo Penta",
+    "Evinrude",
+    "Selva",
+    "Tohatsu"
+  ],
+  "notes": "Este codebook é um ponto de partida. Substitui os fabricantes por dados oficiais. A chave deve ser 'CC|MIC' para formato UE/CIN (ex.: FR|CNB)."
+}
