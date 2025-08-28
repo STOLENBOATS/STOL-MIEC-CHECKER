@@ -1,4 +1,4 @@
-/* css/styles-override.v1.css — header + thumbs */
+/* css/styles-override.v1.css — header + thumbs + lightbox shell */
 .app-header .brand .logo { width: 84px; height: auto; }
 .app-header .brand .titles h1 { font-size: 1.8rem; }
 .app-header .brand .titles .subtitle { font-size: 1.05rem; opacity: .85; }

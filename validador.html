@@ -31,6 +31,10 @@
   <script defer src="js/hin-rules.patch.v1.1.js"></script>
   <script defer src="js/hin-year-filter.patch.v1.js"></script>
   <script defer src="js/lightbox.v1.js"></script>
+<script defer src="js/auto-sync.patch.v1.js"></script>
+<script>window.MIEC_MIC_SOURCES = [ { type:'json', url:'data/mic.all.json' } ];</script>
+<script defer src="js/history-recorder-win.js"></script>
+<script defer src="js/history-recorder-motor.js"></script>
 </head>
 <body>
   <header class="app-header">
@@ -83,7 +87,10 @@
     <section class="card">
       <h2>Validação Motores</h2>
       <form id="motorForm" class="form-grid">
-        <label for="brand"><b>Marca</b><span class="sub-en">(Brand)</span></label>
+        \1
+        <a class="btn" id="forenseLink" href="forense_regras.html" title="Regras forenses / Forensic rules">
+          Regras Forenses<span class="sub-en">(Forensic Rules)</span>
+        </a>
         <select id="brand" required>
           <option value="">— Selecionar — / — Select —</option>
           <option value="Yamaha">Yamaha</option>
