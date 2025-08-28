@@ -4,7 +4,7 @@ window.MIEC_HIST=(function(){
   function thumbCell(url){
     const u=String(url||'').trim(); if(!u) return '';
     const src=u.startsWith('http')?u:(window.SUPABASE_URL?window.SUPABASE_URL.replace(/\/+$/,'')+'/storage/v1/object/public/'+u.replace(/^\/+/, ''):u);
-    return `<img class="thumb" src="${esc(src)}" alt="foto">`;
+    return `<img class="thumb" src="${esc(src)}" data-full="${esc(src)}" alt="foto">`;
   }
   function ensureTable(hostId, headers){
     let host=document.getElementById(hostId)||document.querySelector('.container,.card,main,body');
