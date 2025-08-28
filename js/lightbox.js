@@ -25,3 +25,11 @@
     if (full) { ev.preventDefault(); open(full); }
   });
 })(); 
+
+// ESC key closes
+window.addEventListener('keydown', (ev)=>{
+  if (ev.key === 'Escape'){
+    const o = document.querySelector('.lb-overlay');
+    if (o) o.classList.remove('open');
+  }
+});
