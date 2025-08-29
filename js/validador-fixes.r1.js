@@ -1,16 +1,11 @@
+// validador-fixes.r1.js — remove artefacto "/1" do título motores se existir
 (function(){
   function ready(cb){ document.readyState==='complete'?cb():addEventListener('load',cb,{once:true}); }
   ready(()=>{
-    const headings = document.querySelectorAll('section.card h2');
-    const motorH2 = headings[1] || document.querySelector('section.card + section.card h2');
-    if(!motorH2) return;
-    const host = motorH2.parentElement;
-    if(!host) return;
-    for(const n of Array.from(host.childNodes)){
-      if(n.nodeType===3){
-        const t = (n.textContent||'').trim();
-        if(t==='/1' || t=='\\1' || t==='\\x5c1'){ n.textContent=''; }
-      }
-    }
+    const h2s=[...document.querySelectorAll('h2')].filter(h=>/Validação\s+Motores/i.test(h.textContent));
+    h2s.forEach(h=>{
+      // remove nós de texto residuais tipo "/1"
+      [...h.childNodes].forEach(n=>{ if(n.nodeType===3 && /\/\s*1/.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace(/\/\s*1/g,''); });
+    });
   });
 })();

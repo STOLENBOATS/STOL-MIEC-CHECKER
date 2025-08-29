@@ -1,17 +1,17 @@
+// history-thumbs.r2.js — thumbs pequenas/médias com toggle e persistência
 (function(){
   function ready(cb){ document.readyState==='complete'?cb():addEventListener('load',cb,{once:true}); }
   ready(()=>{
+    if(!/historico_/i.test(location.pathname)) return; // só em histórico
     const header = document.querySelector('.app-header .header-actions') || document.querySelector('.app-header');
     if(!header) return;
 
-    // inject CSS once
     if(!document.getElementById('miec-thumbs-css')){
       const css = document.createElement('style');
       css.id='miec-thumbs-css';
       css.textContent = `
         :root { --thumb-size: 72px; }
         body.thumbs-md { --thumb-size: 112px; }
-        /* tentamos cobrir os possíveis selectores de thumbs/lightbox */
         .hist-table td .thumb img,
         .hist-table td img.thumb,
         .lightbox-grid img,
@@ -29,11 +29,9 @@
       `;
       document.head.appendChild(css);
     }
-
-    // add toggle button (se não existir)
     if(!document.getElementById('thumbToggle')){
       const btn = document.createElement('button');
-      btn.id = 'thumbToggle';
+      btn.id='thumbToggle';
       btn.className='btn';
       btn.style.marginLeft='8px';
       btn.textContent = localStorage.getItem('miecThumbMode')==='md' ? 'Thumbs: Médias' : 'Thumbs: Pequenas';
@@ -43,8 +41,6 @@
         btn.textContent = mode==='md' ? 'Thumbs: Médias' : 'Thumbs: Pequenas';
       });
       header.appendChild(btn);
-
-      // aplicar preferido
       const mode = localStorage.getItem('miecThumbMode') || 'sm';
       if(mode==='md') document.body.classList.add('thumbs-md');
     }
