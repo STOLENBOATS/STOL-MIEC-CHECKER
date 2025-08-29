@@ -7,20 +7,24 @@
   <link rel="icon" type="image/png" href="images/favicon.png" />
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/styles-override.v1.css"><!-- added -->
-
-  <!-- Supabase + Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-  <script defer src="js/config.js?v=418"></script>
-
   
-  <!-- (se usas) autenticação própria -->
-  <script defer src="js/supa-auth.js?v=1"></script>
-  <script defer src="js/compat-bridge.js?v=1"></script>
-  <script defer src="js/validador-gate.js?v=1"></script>
+<!-- Supabase + Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script defer src="js/config.js?v=418"></script>
 
-  <!-- Sync + Service -->
-  <script defer src="js/supa-sync.v1.2.js"></script>
-  <script defer src="js/history-service.js"></script>
+<!-- Auth pack -->
+<script defer src="js/supa-auth.js?v=1"></script>
+<script defer src="js/compat-bridge.js?v=1"></script>
+<script defer src="js/validador-gate.js?v=1"></script>
+
+<!-- Sync + Service -->
+<script defer src="js/supa-sync.v1.2.js"></script>
+<script defer src="js/history-service.js"></script>
+<script defer src="js/auto-sync.patch.v1.js"></script>  <!-- <- NOVO AQUI -->
+
+<!-- Recorders (ativos) -->
+<script defer src="js/history-recorder-win.js"></script>
+<script defer src="js/history-recorder-motor.js"></script>
 
   <!-- Codebooks dinâmicos + regras HIN -->
   <script>
@@ -29,10 +33,7 @@
     ];
   </script>
   <script defer src="js/codebooks-live.v1.js"></script>
-  <script defer src="js/hin-rules.patch.v1.1.js"></script>
-  <script defer src="js/hin-year-filter.patch.v1.js"></script>
-  <script defer src="js/lightbox.v1.js"></script>
-<script defer src="js/auto-sync.patch.v1.js"></script>
+ 
   <!-- HIN UX e foto -->
 <script defer src="js/hin-iso-guard.r12b.js"></script>
 <script defer src="js/hin-caption.r1b.js"></script>
