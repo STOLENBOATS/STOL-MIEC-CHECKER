@@ -1,32 +1,52 @@
-MIEC • Minimal History Fix (r12-2d)
------------------------------------
-Objetivo: reverter a regressão nas páginas de históricos (HIN e Motores), mantendo
-apenas um conjunto de botões no cabeçalho e NADA mais. Este patch não toca no
-Supabase, não injeta CSS extra e não cria toggles.
+MIEC — Rescue Kit r12-2g
+========================
 
+Este kit é MINIMALISTA e seguro. Não injeta SDKs/CDNs, não mexe no fluxo Supabase.
+Corrige:
+- Histórico WIN/Motor com header duplicado
+- Bloqueios por JS antigo
+- Mantém o que já tens a gravar/sincronizar
+
+Arquivos incluídos
+------------------
+- js/history-fix.r12-2g.js
+- js/auto-sync.patch.v1.js  (usar **apenas** no Validador)
+  
 Como aplicar
------------
-1) Copia o ficheiro para a tua pasta /js (js/history-fix.r12-2d.js).
-2) Em 'historico_win.html' e 'historico_motor.html', remove quaisquer includes
-   anteriores que tenhas adicionado deste género:
-     - js/history-fixes.r12-2c.js
-     - css/thumbs.css
-3) Mesmo antes do </body>, adiciona APENAS:
-   <script defer src="js/history-fix.r12-2d.js"></script>
+------------
+1) Remover dos históricos qualquer script experimental anterior (history-fixes, thumbs, etc.).
+2) Copiar `js/history-fix.r12-2g.js` para a pasta `js/` do projeto.
+3) Em **historico_win.html** e **historico_motor.html**, antes de `</body>`, deixar **apenas** esta linha:
+   <script defer src="js/history-fix.r12-2g.js"></script>
 
-Verificações rápidas
---------------------
-- Abre o Histórico (HIN/Motores) e no console deverá aparecer:
-  "[history-fix r12-2d] active. header dedup done: true"
-- Não devem existir 2-3 botões "Voltar ao Validador".
-- As tabelas devem carregar como antes (sem erros no console).
+4) Copiar `js/auto-sync.patch.v1.js` para a pasta `js/` do projeto.
+5) Em **validador.html**, depois de `js/history-service.js` (e antes dos recorders), adicionar:
+   <script defer src="js/auto-sync.patch.v1.js"></script>
 
-Se continuares sem ver linhas:
-------------------------------
-1) Garante no Validador que o outbox não está vazio e sincroniza:
+Ordem recomendada no Validador (no <head>):
+-------------------------------------------
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script defer src="js/config.js?v=418"></script>
+<script defer src="js/supa-auth.js?v=1"></script>
+<script defer src="js/compat-bridge.js?v=1"></script>
+<script defer src="js/validador-gate.js?v=1"></script>
+
+<script defer src="js/supa-sync.v1.2.js"></script>
+<script defer src="js/history-service.js"></script>
+<script defer src="js/auto-sync.patch.v1.js"></script>
+
+<script defer src="js/history-recorder-win.js"></script>
+<script defer src="js/history-recorder-motor.js"></script>
+
+Testes rápidos (Console)
+------------------------
+1) Verifica que o histórico não tem erros vermelhos.
+2) No Validador:
    JSON.parse(localStorage.getItem('miec_sync_outbox_v1')||'[]').length
-   await MIEC_SYNC.pushOutbox(); await MIEC_SYNC.pullAll();
+   await MIEC_SYNC.pushOutbox();
+   await MIEC_SYNC.pullAll();
 
-2) Confirma no Supabase que existem registos em 'history_win' e 'history_motor'.
+3) Deverás ver no console do histórico:
+   [history-fix r12-2g] active. header dedup done.
 
-Este patch é idempotente (pode ser incluído duas vezes sem duplicar efeitos).
+Qualquer dúvida, diz — sigo com a versão “full” assim que esta base estiver estável.
