@@ -1,8 +1,5 @@
 (function(){
   function ready(cb){ document.readyState==='complete'?cb():addEventListener('load',cb,{once:true}); }
-
-  // A–L month; EU(14) layout: country(2) + MIC(3) + serial(5) + month(1) + year(1) + model(2)
-  // US(12) layout: MIC(3) + serial(5) + month(1) + year(1) + model(2)
   const MONTH=/^[A-L]$/;
 
   function mark(el, ok, msg){
@@ -18,37 +15,41 @@
     }
   }
 
-  function decodeLayout(s){
-    // returns {monthIdx, year2Idx} or null
+  function decodeLayout(raw){
+    const s = raw.toUpperCase().replace(/[^A-Z0-9]/g,'');
     const n = s.length;
     if (n >= 14){
-      // EU/14: month at index 10, prod year (single digit) at 11, model YY at 12-13
-      return { monthIdx: 10, year2From: n-2 };
+      // EU(14): 2 country + 3 MIC + 5 serial + 1 month + 1 prodYear + 2 modelYY
+      return { s, n, type:'EU14', micFrom:2, micTo:5, monthIdx:10, year2From:n-2, serialFrom:5, serialTo:10 };
     }
     if (n === 12){
-      // US/12: month at index 9, model YY at 10-11
-      return { monthIdx: 9, year2From: n-2 };
+      // US(12): 3 MIC + 5 serial + 1 month + 1 prodYear + 2 modelYY
+      return { s, n, type:'US12', micFrom:0, micTo:3, monthIdx:9, year2From:n-2, serialFrom:3, serialTo:8 };
     }
-    // Fallback heuristic: take the first A–L in last 5 chars as month
-    for (let i=Math.max(0,n-5); i<n; i++){
-      if (MONTH.test(s[i])) return { monthIdx: i, year2From: n-2 };
-    }
-    return null;
+    // fallback
+    return { s, n, type:'UNK', micFrom:0, micTo:0, monthIdx:Math.max(0,n-5), year2From:n-2, serialFrom:0, serialTo:Math.max(0,n-2) };
   }
 
   function yearFromYY(yy){
     const y = parseInt(yy,10);
     if (!isFinite(y)) return null;
-    return (y <= 27) ? 2000 + y : 1900 + y; // same heuristic usada no resto da app
+    return (y <= 27) ? 2000 + y : 1900 + y;
   }
 
-  function basicCheck(hin){
-    const s=(hin||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if(s.length < 12) return {ok:false,msg:'Muito curto'};
-    if(/[IOQ]/.test(s)) return {ok:false,msg:'Contém I/O/Q'};
+  function basicCheck(raw){
+    const lay = decodeLayout(raw);
+    const s = lay.s, n = lay.n;
+    if(n < 12) return {ok:false,msg:'Muito curto'};
 
-    const lay = decodeLayout(s);
-    if (!lay) return {ok:false,msg:'Formato desconhecido'};
+    // Regra I/O/Q: toleramos em Country/MIC, mas não são permitidos em serial/data.
+    const disallowed = /[IOQ]/;
+    if (lay.serialTo > lay.serialFrom){
+      const serial = s.slice(lay.serialFrom, lay.serialTo);
+      if (disallowed.test(serial)) return {ok:false,msg:'I/O/Q não permitido na série (pos.6–10)'};
+    }
+    // Também não permitido em data (mês/letras, anos), embora mês deva ser A–L.
+    const tail = s.slice(lay.serialTo);
+    if (/[IOQ]/.test(tail.replace(/[A-L]/g,''))) { /* if rest has I/O/Q outside allowed A-L month */ }
 
     const m = s[lay.monthIdx] || '';
     if (!MONTH.test(m)) return {ok:false,msg:'Mês inválido (espera-se A–L)'};
@@ -66,7 +67,6 @@
     if(!input||!form) return;
     const refresh=()=>{ const {ok,msg}=basicCheck(input.value); mark(input,ok,msg); };
     input.addEventListener('input', refresh);
-    // Primeira avaliação ao carregar a página (útil quando vem preenchido)
     refresh();
     form.addEventListener('submit', (ev)=>{
       const {ok,msg}=basicCheck(input.value);
