@@ -1,0 +1,14 @@
+/* Minimal thumbs size rules for history galleries */
+:root { --thumb-sm: 72px; --thumb-md: 128px; }
+.history-photo img,
+.history-photo,
+.thumb img, .thumb {
+  width: var(--thumb-sm);
+  height: auto;
+  max-width: 100%;
+}
+body.thumbs-md .history-photo img,
+body.thumbs-md .history-photo,
+body.thumbs-md .thumb img, body.thumbs-md .thumb {
+  width: var(--thumb-md);
+}
