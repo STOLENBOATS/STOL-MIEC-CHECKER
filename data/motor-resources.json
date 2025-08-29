@@ -1,22 +1,60 @@
 {
-  "Mercury": [
+  "_DEFAULT": [
     {
-      "label": "Mercury Parts Catalog",
-      "url": "https://www.mercurymarine.com/en/us/parts-and-accessories/parts-catalog"
-    },
-    {
-      "label": "Mercury Serial Number Guide",
-      "url": "https://www.mercurymarine.com/en/us/support/faq/find-engine-serial-number"
+      "label": "Portal interno — Motores (PM)",
+      "url": "docs/pm_portal_motores.html"
     }
   ],
   "Yamaha": [
     {
-      "label": "Yamaha Outboard Parts",
-      "url": "https://www.yamahapartscentral.com/oemparts"
+      "label": "Guia Forense Yamaha (PM)",
+      "url": "docs/pm_yamaha_forense.pdf"
     },
     {
-      "label": "Yamaha Serial Number Guide",
-      "url": "https://yamahaoutboards.com/en-us/owner-resources/faq#serial-number"
+      "label": "Tabela Série/Modelo Yamaha (PM)",
+      "url": "docs/pm_yamaha_tabelas.pdf"
+    }
+  ],
+  "Honda": [
+    {
+      "label": "Guia Forense Honda (PM)",
+      "url": "docs/pm_honda_forense.pdf"
+    }
+  ],
+  "Mercury": [
+    {
+      "label": "Guia Forense Mercury (PM)",
+      "url": "docs/pm_mercury_forense.pdf"
+    }
+  ],
+  "Suzuki": [
+    {
+      "label": "Guia Forense Suzuki (PM)",
+      "url": "docs/pm_suzuki_forense.pdf"
+    }
+  ],
+  "Volvo Penta": [
+    {
+      "label": "Guia Forense Volvo Penta (PM)",
+      "url": "docs/pm_volvopenta_forense.pdf"
+    }
+  ],
+  "Evinrude": [
+    {
+      "label": "Guia Forense Evinrude (PM)",
+      "url": "docs/pm_evinrude_forense.pdf"
+    }
+  ],
+  "Selva": [
+    {
+      "label": "Guia Forense Selva (PM)",
+      "url": "docs/pm_selva_forense.pdf"
+    }
+  ],
+  "Tohatsu": [
+    {
+      "label": "Guia Forense Tohatsu (PM)",
+      "url": "docs/pm_tohatsu_forense.pdf"
     }
   ]
 }
