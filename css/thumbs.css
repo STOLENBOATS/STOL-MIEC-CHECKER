@@ -1,4 +1,3 @@
-/* Minimal thumbs size rules for history galleries */
 :root { --thumb-sm: 72px; --thumb-md: 128px; }
 .history-photo img,
 .history-photo,

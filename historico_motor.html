@@ -15,7 +15,7 @@
   <!-- Supabase + Config (ORDEM IMPORTA) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
   <script defer src="js/config.js?v=418"></script>
-  <script defer src="js/supa-auth.js?v=1"></script> <!-- para window.supa.logout() -->
+  <script defer src="js/supa-auth.js?v=1"></script>
 </head>
 <body>
   <header class="app-header">
@@ -46,14 +46,10 @@
 
   <!-- JS da página -->
   <script defer src="js/lightbox.js?v=r9"></script>
-
-  <!-- Hotfix minimal: remove duplicados no header (sem mexer em dados) -->
   <script defer src="js/history-fix.r12-2g.js"></script>
-
-  <!-- UI/loader do histórico -->
   <script defer src="js/history-ui.r10.js?v=r10"></script>
 
-  <!-- Comportamento: tema + logout (igual ao validador) -->
+  <!-- Tema + Logout -->
   <script>
     (function () {
       const root = document.documentElement;
@@ -81,4 +77,3 @@
   </script>
 </body>
 </html>
-

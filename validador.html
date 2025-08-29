@@ -22,7 +22,7 @@
   <!-- Sync + Service -->
   <script defer src="js/supa-sync.v1.2.js"></script>
   <script defer src="js/history-service.js"></script>
-  <script defer src="js/auto-sync.patch.v1.js"></script> <!-- autosync único -->
+  <script defer src="js/auto-sync.patch.v1.js"></script>
 
   <!-- Recorders (ativos) -->
   <script defer src="js/history-recorder-win.js"></script>
@@ -30,9 +30,7 @@
 
   <!-- Codebooks + Regras HIN -->
   <script>
-    window.MIEC_MIC_SOURCES = [
-      { type: 'json', url: 'data/mic.all.json' } // codebook alargado local
-    ];
+    window.MIEC_MIC_SOURCES = [{ type:'json', url:'data/mic.all.json' }];
   </script>
   <script defer src="js/codebooks-live.v1.js"></script>
 

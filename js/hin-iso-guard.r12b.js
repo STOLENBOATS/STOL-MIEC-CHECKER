@@ -4,7 +4,6 @@
   function showBadge(id, text){
     let b = document.getElementById(id);
     if(!b){
-      // badge bubble reutiliza um elemento existente se houver
       b = document.createElement('div');
       b.id = id;
       b.style.position = 'absolute';
@@ -26,16 +25,11 @@
   ready(()=>{
     const input = document.getElementById('winInput');
     if(!input) return;
-    // badge escondido por omissão
     showBadge('hinBadger',''); 
     let dirty = false;
-
     function validate(v){
       v = (v||'').trim().toUpperCase();
-      // Esconde tudo se não houve interação ainda
       if(!dirty){ showBadge('hinBadger',''); return; }
-
-      // Regras simples: 14 chars UE/EUA; mês (11) A-L; sem I/O/Q no serial (6-10)
       const msg = [];
       if(v.length && v.length < 14) msg.push('Muito curto');
       if(v.length >= 11){
@@ -43,14 +37,13 @@
         if(m && !"ABCDEFGHIJKL".includes(m)) msg.push('Mês inválido (espera-se A–L)');
       }
       if(v.length >= 10){
-        const serial = v.slice(5,10); // pos 6-10 (1-index)
+        const serial = v.slice(5,10);
         if(/[IOQ]/.test(serial)) msg.push('Contém I/O/Q');
       }
-      // Ano < 1998 bloqueado (quando possível decodificar EUA: pos 13-14)
       if(v.length >= 14){
         const yy = v.slice(12,14);
         if(/^\d{2}$/.test(yy)){
-          const year = (2000 + Number(yy)) - (Number(yy) < 30 ? 0 : 100); // aproximação simples
+          const year = (2000 + Number(yy)) - (Number(yy) < 30 ? 0 : 100);
           if(year && year < 1998) msg.push('< 1998 requer certificado');
         }
       }

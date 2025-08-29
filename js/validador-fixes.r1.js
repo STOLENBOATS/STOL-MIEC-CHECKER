@@ -4,7 +4,6 @@
   ready(()=>{
     const h2s=[...document.querySelectorAll('h2')].filter(h=>/Validação\s+Motores/i.test(h.textContent));
     h2s.forEach(h=>{
-      // remove nós de texto residuais tipo "/1"
       [...h.childNodes].forEach(n=>{ if(n.nodeType===3 && /\/\s*1/.test(n.nodeValue)) n.nodeValue=n.nodeValue.replace(/\/\s*1/g,''); });
     });
   });
