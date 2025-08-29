@@ -1,21 +1,37 @@
+# M.I.E.C. — Maritime Identification & Engine Checker
 
-# MIEC — Codebook Tools (r2)
+Ferramenta forense para validação de **HIN** (Hull Identification Number) e identificação de **motores**.
+Interface bilingue (PT/EN), tema dia/noite, histórico e export.
 
-Inclui:
-- `data/codebook.json` : template inicial (com alguns placeholders)
-- `tools/manufacturers_cin.template.csv` : modelo CSV para editares numa folha
-- `tools/csv-to-codebook.html` : página local que converte o CSV em JSON (mapeamento + índice)
+## Como usar
+- Abrir `validador.html` no navegador.
+- **HIN**: inserir o código; a ferramenta interpreta campos, resolve anos de produção/modelo e aplica regra **pré-1998** (mostra certificado apenas quando aplicável).
+- **Motores**: escolher a marca — aparecem apenas os campos dessa marca. Validação ativa: **Yamaha, Honda, Mercury, Suzuki, Volvo Penta**; restantes em modo **parcial** (campos prontos).  
+- **Regras Forenses**: `forense_regras.html` com ajuda por marca.
 
-## Fluxo sugerido
-1. Preenche o CSV com registos confirmados (fonte, URL, data, status, verified).
-2. Abre `tools/csv-to-codebook.html` no browser, cola o CSV e clica **Converter**.
-3. **Download JSON** e substitui em `data/codebook.json` (ou funde os blocos `manufacturers_*`).
+## Estrutura
+```
+/
+├── validador.html
+├── historico_hin.html / historico_motor.html
+├── forense_regras.html
+├── js/
+├── css/
+└── assets/
+```
 
-## Fontes Oficiais / Semioficiais
-- UK (MIC): British Marine — pesquisa/atribuição pública.
-- US: USCG MIC database — útil para cross-check de fabricantes exportadores.
-- NL: HISWA-RECRON — atribuição nacional.
-- ES: MITMA — documentação oficial e contactos.
-- FR: Ministère de la Transition Écologique — procedimentos (code constructeur).
+## Notas
+- O ficheiro `js/validador-win.js` é a versão corrigida fornecida pelo utilizador (agosto 2025-08-20).
+- Regra **pré-1998**: apenas dispara se os **anos resolvidos** (produção/modelo) forem < 1998; caso contrário, a opção de certificado permanece oculta.
+- Marca → campos dinâmicos: editar em `js/validador-motor.js` no objeto **BRAND_REGISTRY**.
 
-> Nota: as entradas incluídas como exemplo devem ser **substituídas** por dados confirmados.
+## Licença
+A definir pela Polícia Marítima. (por omissão: uso interno)
+
+
+## GitHub Pages
+Este repositório inclui um workflow para publicar o site estático.
+- Ao fazer *push* para **main**, o workflow **Deploy GitHub Pages** é executado.
+- A página de entrada é **index.html** (redireciona para `validador.html`).
+
+Depois do primeiro push para **main**, vê o separador **Actions** e confirma o *deployment* para obter o URL público.

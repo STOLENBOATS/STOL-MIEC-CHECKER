@@ -1,0 +1,22 @@
+{
+  "Mercury": [
+    {
+      "label": "Mercury Parts Catalog",
+      "url": "https://www.mercurymarine.com/en/us/parts-and-accessories/parts-catalog"
+    },
+    {
+      "label": "Mercury Serial Number Guide",
+      "url": "https://www.mercurymarine.com/en/us/support/faq/find-engine-serial-number"
+    }
+  ],
+  "Yamaha": [
+    {
+      "label": "Yamaha Outboard Parts",
+      "url": "https://www.yamahapartscentral.com/oemparts"
+    },
+    {
+      "label": "Yamaha Serial Number Guide",
+      "url": "https://yamahaoutboards.com/en-us/owner-resources/faq#serial-number"
+    }
+  ]
+}
