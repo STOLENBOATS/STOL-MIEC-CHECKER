@@ -1,17 +1,1 @@
-/*! history-fix.r12-2g.js — deduplica header nas páginas de histórico (mínimo) */
-(()=>{
-  if(window.__MIEC_HISTORY_FIX__) return; window.__MIEC_HISTORY_FIX__=true;
-  const init=()=>{
-    const header=document.querySelector('.app-header .header-actions')||document.querySelector('.header-actions');
-    if(!header) return;
-    const seen=new Set();
-    Array.from(header.children).forEach(el=>{
-      const t=(el.textContent||'').trim().toLowerCase();
-      const k=t+'|'+(el.getAttribute('href')||'')+'|'+(el.id||'');
-      if(seen.has(k)) el.remove(); else seen.add(k);
-    });
-    const themes=document.querySelectorAll('#themeBtn'); if(themes.length>1) themes.forEach((b,i)=>{ if(i) b.remove(); });
-    console.log('[history-fix r12-2g] ativo');
-  };
-  (document.readyState==='loading')?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
-})();
+/*! history-fix.r12-2g.js */(()=>{if(window.__MIEC_HISTORY_FIX__)return;window.__MIEC_HISTORY_FIX__=true;const e=()=>{const t=document.querySelector('.app-header .header-actions')||document.querySelector('.header-actions');if(!t)return;const o=new Set();Array.from(t.children).forEach(r=>{const n=(r.textContent||'').trim().toLowerCase();const a=n+'|'+(r.getAttribute('href')||'')+'|'+(r.id||'');if(o.has(a))r.remove();else o.add(a)});const s=document.querySelectorAll('#themeBtn');if(s.length>1)s.forEach((b,i)=>{if(i)b.remove()});};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',e,{once:true}):e();})();
