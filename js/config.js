@@ -4,8 +4,8 @@
    - localStorage.MIEC_CONFIG com chaves *legacy* (SUPABASE_URL/SUPABASE_ANON_KEY) OU novas (url/anonKey).
 */
 
-window.SUPABASE_URL ??= 'https://SEU-PROJ.supabase.co';
-window.SUPABASE_ANON_KEY ??= 'SEU-ANON-KEY';
+window.SUPABASE_URL ??= 'https://okmifknkaidblkueiwjn.supabase.co';
+window.SUPABASE_ANON_KEY ??= 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rbWlma25rYWlkYmxrdWVpd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTI2MTYsImV4cCI6MjA3MTI4ODYxNn0.hrr7wc-SUb2iQfhS1iWrnnZj2KLql2CyPsooZGo_N5Y';
 
 (function () {
   try {
