@@ -3,6 +3,10 @@
    - const SUPABASE_URL/SUPABASE_ANON_KEY (se existirem), OU
    - localStorage.MIEC_CONFIG com chaves *legacy* (SUPABASE_URL/SUPABASE_ANON_KEY) OU novas (url/anonKey).
 */
+
+window.SUPABASE_URL ??= 'https://SEU-PROJ.supabase.co';
+window.SUPABASE_ANON_KEY ??= 'SEU-ANON-KEY';
+
 (function () {
   try {
     // 1) Promove consts (se existirem)
