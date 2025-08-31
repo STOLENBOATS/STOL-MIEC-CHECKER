@@ -1,12 +1,22 @@
-MIEC — r12_2 FULL (limpinho)
+MIEC — POC Pack r13
+--------------------
 Inclui:
-- validador.html
-- historico_win.html
-- historico_motor.html
-- js/: auto-sync.patch.v1.js, hin-iso-guard.r12b.js, hin-caption.r1b.js, photo-capture.r1.js, validador-fixes.r1.js, history-fix.r12-2g.js
-- css/: thumbs.css
+- validador.html (substituir)
+- js/ocr-hin.poc.v1.js
+- js/dossier-forense.poc.v1.js
+- js/qrcode.min.js (mini)
+- verify.html (verificador: /verify.html?sha=<hash>)
+- sql/forensic_dossiers.sql
 
-Como aplicar:
-1) Substitui os três HTMLs pelos deste pacote.
-2) Copia JS e CSS para as respetivas pastas.
-3) Hard refresh (Ctrl+F5).
+Como aplicar
+1) Copia validador.html, verify.html e pasta js/ para o projeto.
+2) Supabase > Storage: cria bucket "dossiers" com leitura pública (Public).
+3) (Opcional) Supabase > SQL: corre sql/forensic_dossiers.sql.
+4) Hard refresh. No Validador:
+   - Seleciona/fotografa HIN → "Ler Foto (OCR • beta)" → auto-preenche HIN.
+   - "Gerar Dossier" → descarrega HTML; se storage OK, grava JSON/ficheiros no bucket.
+   - Abre verify.html?sha=<hash> → ✅/❌.
+
+Notas
+- OCR via CDN (Tesseract.js). Para offline total, depois alojamos worker+traineddata.
+- QR minimalista; podes trocar por uma lib maior se quiseres.
