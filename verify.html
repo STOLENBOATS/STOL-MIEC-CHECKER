@@ -1,7 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>M.I.E.C. • Verificar Dossier</title>
-<link rel="stylesheet" href="css/styles.css"><style>body{max-width:900px;margin:24px auto;padding:0 16px;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}pre{background:#111;color:#eee;padding:12px;border-radius:8px;overflow:auto}.ok{color:#0a0}.bad{color:#a00}</style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script><script defer src="js/config.js?v=418"></script></head>
-<body><h1>Verificador de Dossier</h1><p>Recalcula o <b>SHA-256</b> do JSON e compara com <code>?sha=</code>.</p><div id="status"></div><pre id="jsonview"></pre>
-<script>async function sha256hex(e){const t=new TextEncoder().encode(e),n=await crypto.subtle.digest('SHA-256',t);return[...new Uint8Array(n)].map((e=>e.toString(16).padStart(2,'0'))).join('')}async function main(){const e=new URLSearchParams(location.search),t=(e.get('sha')||'').trim().toLowerCase(),n=document.getElementById('status'),a=document.getElementById('jsonview');if(!t)return void(n.innerHTML='<p class="bad">Falta parâmetro <code>sha</code>.</p>');const o=window.supabaseClient||(window.SUPABASE_URL&&window.SUPABASE_ANON_KEY?supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY):null);if(!o)return void(n.innerHTML='<p>Sem cliente Supabase; não é possível buscar o JSON do dossier.</p>');try{const{data:e,error:n}=await o.storage.from('dossiers').download(t+'.json');if(n)throw n;const r=await e.text();a.textContent=r;const s=await sha256hex(r);s===t?n.innerHTML='<p class="ok">✅ Válido — hash corresponde ao conteúdo.</p>':n.innerHTML='<p class="bad">❌ Inválido — hash não corresponde.</p><p><small>Calculado: '+s+'</small></p>'}catch(c){n.innerHTML='<p class="bad">Erro a obter dossier: '+(c.message||c)+'</p>'}}addEventListener('load',main);</script>
-</body></html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M.I.E.C. • Verificar Dossier</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>body{max-width:900px;margin:24px auto;padding:0 16px;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}pre{background:#111;color:#eee;padding:12px;border-radius:8px;overflow:auto}.ok{color:#0a0}.bad{color:#a00}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script defer src="js/config.js?v=418"></script></head>
+<body><h1>Verificador de Dossier</h1><p>Recalcula o <b>SHA-256</b> do JSON e compara com <code>?sha=</code>.</p>
+<div id="status"></div><pre id="jsonview"></pre>
+<script>
+async function sha256hex(s){const e=new TextEncoder().encode(s),b=await crypto.subtle.digest('SHA-256',e);return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function main(){
+  const p=new URLSearchParams(location.search), sha=(p.get('sha')||'').trim().toLowerCase();
+  const status=document.getElementById('status'), pre=document.getElementById('jsonview');
+  if(!sha){ status.innerHTML='<p class="bad">Falta parâmetro <code>sha</code>.</p>'; return; }
+  const sb=window.supabaseClient||(window.SUPABASE_URL&&window.SUPABASE_ANON_KEY? supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY):null);
+  if(!sb){ status.innerHTML='<p>Sem cliente Supabase.</p>'; return; }
+  try{
+    const { data, error } = await sb.storage.from('dossiers').download(sha+'.json');
+    if(error) throw error;
+    const text=await data.text();
+    pre.textContent=text;
+    const calc=await sha256hex(text);
+    status.innerHTML = (calc===sha)? '<p class="ok">✅ Válido</p>' : '<p class="bad">❌ Inválido</p><p><small>Calculado: '+calc+'</small></p>';
+  }catch(e){ status.innerHTML='<p class="bad">Erro: '+(e.message||e)+'</p>'; }
+}
+addEventListener('load', main);
+</script></body></html>

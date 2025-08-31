@@ -9,65 +9,47 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/styles-override.v1.css" />
   <link rel="stylesheet" href="css/lightbox.css?v=r9" />
-  <link id="miec-thumbs-css" rel="stylesheet" href="css/thumbs.css?v=r12-2c" />
+  <link id="miec-thumbs-css" rel="stylesheet" href="css/thumbs.css?v=r13" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  <script defer src="js/config.html.js"></script>
   <script defer src="js/config.js?v=418"></script>
   <script defer src="js/supa-auth.js?v=1"></script>
+  <script defer src="js/history-fix.r12-2g.js"></script>
+  <script defer src="js/lightbox.js?v=r9"></script>
+  <script defer src="js/history-ui.r10.js?v=r10"></script>
+
 </head>
 <body>
   <header class="app-header">
     <div class="brand">
       <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo" />
-      <div class="titles">
-        <h1>M.I.E.C.</h1>
-        <p class="subtitle">Maritime Identification &amp; Engine Checker</p>
-      </div>
+      <div class="titles"><h1>M.I.E.C.</h1><p class="subtitle">Maritime Identification &amp; Engine Checker</p></div>
     </div>
     <nav class="header-actions">
-      <a class="btn" href="validador.html" title="Voltar ao Validador">Voltar ao Validador</a>
-      <button id="themeBtn" class="theme-toggle" title="Alternar tema">🌙/☀️</button>
-      <button id="logoutBtn" class="btn danger" title="Sair">Sair</button>
+      <a class="btn" href="validador.html">Voltar ao Validador</a>
+      <button id="themeBtn" class="theme-toggle">🌙/☀️</button>
+      <button id="logoutBtn" class="btn danger">Sair</button>
     </nav>
   </header>
-
-  <main class="container">
-    <div id="content" class="card">
-      <h2>Histórico Motores <span class="sub-en">(Engine History)</span></h2>
-      <div id="historyTable"></div>
-    </div>
-  </main>
-
-  <footer class="footer muted">
-    <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.2.1-auth-min</p>
-  </footer>
-
-  <script defer src="js/lightbox.js?v=r9"></script>
-  <script defer src="js/history-fix.r12-2g.js"></script>
-  <script defer src="js/history-ui.r10.js?v=r10"></script>
-
+  <main class="container"><div id="content" class="card">
+    <h2>Histórico Motores <span class="sub-en">(Engine History)</span></h2>
+    <div id="historyTable"></div>
+  </div></main>
+  <footer class="footer muted"><p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.2.1-auth-min</p></footer>
   <script>
-    (function () {
-      const root = document.documentElement;
-      const saved = localStorage.getItem('theme') || 'dark';
-      root.classList.remove('theme-dark', 'theme-light');
-      root.classList.add(saved === 'light' ? 'theme-light' : 'theme-dark');
-
-      document.getElementById('themeBtn')?.addEventListener('click', () => {
-        const isLight = root.classList.contains('theme-light');
-        root.classList.toggle('theme-light', !isLight);
-        root.classList.toggle('theme-dark', isLight);
-        localStorage.setItem('theme', !isLight ? 'light' : 'dark');
+    (function(){
+      const root=document.documentElement;const saved=localStorage.getItem('theme')||'dark';
+      root.classList.remove('theme-dark','theme-light');
+      root.classList.add(saved==='light'?'theme-light':'theme-dark');
+      document.getElementById('themeBtn')?.addEventListener('click',()=>{
+        const isLight=root.classList.contains('theme-light');
+        root.classList.toggle('theme-light',!isLight);root.classList.toggle('theme-dark',isLight);
+        localStorage.setItem('theme',!isLight?'light':'dark');
       });
-
-      document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-        try {
-          await window.supa?.logout?.();
-          sessionStorage.removeItem('loggedIn');
-          location.replace('login.html?v=418');
-        } catch (e) {
-          alert('Falha a terminar sessão: ' + (e?.message || e));
-        }
+      document.getElementById('logoutBtn')?.addEventListener('click',async()=>{
+        try{await window.supa?.logout?.();sessionStorage.removeItem('loggedIn');location.replace('login.html?v=418');}
+        catch(e){alert('Falha a terminar sessão: '+(e?.message||e));}
       });
     })();
   </script>

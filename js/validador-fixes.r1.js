@@ -1,2 +1,2 @@
 // validador-fixes.r1.js
-(function(){function e(t){document.readyState==='complete'?t():addEventListener('load',t,{once:true})}e(()=>{const t=[...document.querySelectorAll('h2')].filter(h=>/Validação\s+Motores/i.test(h.textContent));t.forEach(h=>{[...h.childNodes].forEach(n=>{if(n.nodeType===3&&/\/\s*1/.test(n.nodeValue))n.nodeValue=n.nodeValue.replace(/\/\s*1/g,'')})})});})();
+(function(){function e(t){document.readyState==='complete'?t():addEventListener('load',t,{once:true})}e(()=>{[...document.querySelectorAll('h2')].forEach(h=>{h.childNodes.forEach(n=>{if(n.nodeType===3)n.nodeValue=n.nodeValue.replace(/\s*\/\s*1/g,'')})})})})();

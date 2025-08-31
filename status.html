@@ -1,32 +1,28 @@
-<!doctype html>
-<html lang="pt">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>M.I.E.C. • Status</title>
-  <link rel="stylesheet" href="css/styles.css?v=418" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const supaScript = Array.from(document.scripts).find(s => s.src.includes('supabase-js'));
-      const supaSrc = supaScript ? supaScript.src : '(não encontrado)';
-      document.getElementById('supa').textContent = supaSrc;
-      document.getElementById('ts').textContent = "2025-08-24T19:50:24.332883Z";
-    });
-  </script>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial; padding: 24px; }
-    code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }
-    .card { border:1px solid #e5e7eb; border-radius:14px; padding:16px; margin-bottom:16px; }
-  </style>
-</head>
-<body>
-  <h1>M.I.E.C. • Status</h1>
-  <div class="card">
-    <p><strong>Build marker:</strong> <code>v=418</code></p>
-    <p><strong>Supabase JS:</strong> <code id="supa"></code></p>
-    <p><strong>Timestamp (UTC):</strong> <code id="ts"></code></p>
-    <p><a href="validador.html?v=418">Abrir Validador</a> • <a href="debug.html">Debug</a></p>
-  </div>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M.I.E.C. • Estado</title>
+<link rel="stylesheet" href="css/styles.css">
+<style>main{max-width:900px;margin:24px auto;padding:0 16px}pre{background:#111;color:#eee;padding:12px;border-radius:8px;overflow:auto}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script defer src="js/config.js?v=418"></script></head>
+<body><main><h1>Estado</h1><pre id="out">a carregar…</pre></main>
+<script>
+(async()=>{
+  const out=document.getElementById('out');
+  try{
+    const ok = !!(window.SUPABASE_URL && window.SUPABASE_ANON_KEY);
+    const sb = ok ? supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY) : null;
+    const sess = sb ? (await sb.auth.getSession()).data.session : null;
+    const info = {
+      SUPABASE_URL: window.SUPABASE_URL||null,
+      SUPABASE_ANON_KEY: !!window.SUPABASE_ANON_KEY,
+      session_user: sess?.user?.id || null,
+      has_HistoryService: !!window.HistoryService,
+      has_MIEC_SYNC: !!window.MIEC_SYNC,
+    };
+    out.textContent = JSON.stringify(info,null,2);
+  }catch(e){
+    out.textContent = 'Erro: '+(e.message||e);
+  }
+})();
+</script></body></html>
