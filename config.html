@@ -1,18 +1,27 @@
-<!DOCTYPE html>
-<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>M.I.E.C. • Config</title>
-<link rel="stylesheet" href="css/styles.css"><style>main{max-width:720px;margin:24px auto;padding:0 16px}</style></head>
-<body><main><h1>Config MIEC</h1>
-<p>Guarda as credenciais de Supabase no <code>localStorage</code> como <b>MIEC_CONFIG</b>.</p>
-<label>URL <input id="url" style="width:100%"></label><br><br>
-<label>Anon Key <input id="key" style="width:100%"></label><br><br>
-<label>Bucket fotos (opcional) <input id="bucket" value="photos"></label><br><br>
-<button id="save">Guardar</button>
-<pre id="out"></pre></main>
-<script>
-document.getElementById('save').addEventListener('click',()=>{
-  const cfg={url:document.getElementById('url').value.trim(),anonKey:document.getElementById('key').value.trim(),bucket:document.getElementById('bucket').value.trim()||'photos'};
-  localStorage.setItem('MIEC_CONFIG', JSON.stringify(cfg));
-  document.getElementById('out').textContent='OK guardado: '+JSON.stringify(cfg,null,2);
-});
-</script></body></html>
+<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>M.I.E.C. • Configuração</title>
+<style>:root{--bg:#f7f9fc;--card:#fff;--border:#e3e7ef;--text:#0b1220;--muted:#6b7280}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Arial}
+.wrap{max-width:960px;margin:32px auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 16px 8px}
+.row{display:grid;grid-template-columns:220px 1fr;gap:12px;align-items:center;margin:10px 0}
+label{font-weight:600}input[type=text],input[type=password]{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0}.btn{border:1px solid var(--border);padding:10px 14px;border-radius:12px;background:#eef3ff;cursor:pointer}
+.muted{color:var(--muted)}.ok{color:#0a7}.bad{color:#c33}.note{margin-top:10px;font-size:14px}code{background:#eef1f6;padding:2px 6px;border-radius:6px}</style></head>
+<body><div class="wrap"><h1>Configuração — Supabase <span class="muted">/ Cloud data</span></h1>
+<div class="card"><div class="row"><label>Project URL</label><input id="url" type="text" placeholder="https://xxxxx.supabase.co"></div>
+<div class="row"><label>Anon Key</label><input id="key" type="password" placeholder="eyJhbGciOi..."></div>
+<div class="row"><label>Bucket fotos</label><input id="bucket" type="text" value="photos"></div>
+<div class="row"><label>Domínio permitido</label><input id="domain" type="text" placeholder="pm.pt (opcional)"></div>
+<div class="btns"><button class="btn" id="testBtn">Testar ligação</button><button class="btn" id="saveBtn">Guardar</button><button class="btn" id="clearBtn">Limpar</button><a class="btn" href="validador.html">Voltar</a></div>
+<div id="out" class="muted"></div><p class="note muted">Guarda no <code>localStorage</code> em <code>MIEC_CONFIG</code>. A app lê estes valores automaticamente.</p></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script>const STORE_KEY='MIEC_CONFIG';const $=s=>document.querySelector(s);const msg=(t,c='muted')=>{const o=$('#out');o.className=c;o.textContent=t;};
+(function(){try{const b=(window.MIEC_CONFIG||{});const s=JSON.parse(localStorage.getItem(STORE_KEY)||'{}');const cfg=Object.assign({},b,s);
+$('#url').value=cfg.SUPABASE_URL||'';$('#key').value=cfg.SUPABASE_ANON_KEY||'';$('#bucket').value=cfg.STORAGE_BUCKET||'photos';$('#domain').value=cfg.ALLOW_DOMAIN||'';}catch(e){}})();
+$('#saveBtn').addEventListener('click',()=>{const cfg={SUPABASE_URL:$('#url').value.trim(),SUPABASE_ANON_KEY:$('#key').value.trim(),STORAGE_BUCKET:$('#bucket').value.trim()||'photos',ALLOW_DOMAIN:$('#domain').value.trim()||undefined};
+localStorage.setItem(STORE_KEY,JSON.stringify(cfg));msg('Guardado. Volte ao Validador e faça login.','ok');});
+$('#clearBtn').addEventListener('click',()=>{localStorage.removeItem(STORE_KEY);msg('Config limpa.','ok');});
+$('#testBtn').addEventListener('click',async()=>{try{const u=$('#url').value.trim(),k=$('#key').value.trim();if(!u||!k){msg('Preencha URL e Anon Key.','bad');return;}
+const c=supabase.createClient(u,k);await c.auth.getSession();msg('Ligação OK (URL + Anon válidos).','ok');}catch(e){msg('Falha: '+(e.message||e),'bad');}});</script>
+</body></html>

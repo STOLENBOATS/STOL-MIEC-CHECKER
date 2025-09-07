@@ -1,24 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>M.I.E.C. • Histórico Motores</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="images/favicon.png" />
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/lightbox.css?v=r9" />
-  <link id="miec-thumbs-css" rel="stylesheet" href="css/thumbs.css?v=r13" />
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles-override.v1.css"><!-- added -->
+  <script defer src="js/lightbox.v1.js"></script><!-- added -->
+  
+  
+  
+  
+  
 
-  <!-- JS (ROOT paths) -->
-  <script defer src="config.js?v=418"></script>
-  <script defer src="lightbox.js?v=r9"></script>
-  <script defer src="history-ui.r10.js?v=r10"></script>
+
+<script src="https://cdn.js?v=r9delivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script defer src="js/config.js?v=r9"></script>
+<script defer src="js/history-common.v1.js?v=r9"></script>
+<script defer src="js/historico-motor.r6b.js?v=r9"></script>
+<link rel="stylesheet" href="css/lightbox.css?v=r9">
 
 </head>
 <body>
   <header class="app-header">
     <div class="brand">
-      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo" />
+      <img src="images/logo-pm.jpg" alt="Polícia Marítima" class="logo">
       <div class="titles"><h1>M.I.E.C.</h1><p class="subtitle">Maritime Identification &amp; Engine Checker</p></div>
     </div>
     <nav class="header-actions">
@@ -28,6 +35,7 @@
   </header>
 
   <main class="container">
+    <!-- mantém o teu conteúdo da página de histórico -->
     <div id="content" class="card">
       <h2>Histórico Motores</h2>
       <div id="historyTable"></div>
@@ -37,5 +45,6 @@
   <footer class="footer muted">
     <p>© Polícia Marítima — Unidade Central de Investigação Criminal • v4.2.1-auth-min</p>
   </footer>
+<script defer src="js/lightbox.js?v=r9"></script>
 </body>
 </html>

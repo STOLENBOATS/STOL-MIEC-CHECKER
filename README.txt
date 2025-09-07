@@ -1,7 +1,7 @@
-MIEC — r13 FULL (base + POCs)
-- Substitui HTMLs na raiz: validador.html, historico_win.html, historico_motor.html, config.html, status.html, verify.html
-- Copia js/, css/, sql/ para as respetivas pastas.
-- Supabase Storage: cria bucket PUBLIC 'dossiers'.
-- (Opcional) Corre sql/forensic_dossiers.sql.
-- Abre config.html e grava URL/Anon Key → valida em status.html.
-- Testa em validador.html: OCR foto do HIN + Gerar Dossier.
+MIEC — Full Fix HIN History r6d
+Files:
+ - js/sync-hist-ls-to-supabase.v1.js
+ - js/history-common.v1.js
+ - js/historico-win.r6b.js
+ - js/historico-motor.r6b.js
+Use includes as instructed in the chat. If pages are in a subfolder, use ../js/...
