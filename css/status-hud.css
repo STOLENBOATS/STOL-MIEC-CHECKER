@@ -1,0 +1,11 @@
+
+#miechud{position:fixed;inset:auto 12px 12px auto;z-index:99999;background:rgba(10,12,16,.92);color:#e6e8ea;border:1px solid #2a2f3a;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);min-width:260px;font:12px/1.35 ui-sans-serif,system-ui,Segoe UI,Roboto,Ubuntu}
+#miechud header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #2a2f3a}
+#miechud .dot{width:8px;height:8px;border-radius:50%}.ok{background:#22c55e}.warn{background:#fbbf24}.err{background:#ef4444}
+#miechud main{padding:10px 12px;max-height:40vh;overflow:auto}
+#miechud table{width:100%;border-collapse:collapse}
+#miechud td{padding:4px 0;border-bottom:1px solid #21242c;vertical-align:top}
+#miechud .k{opacity:.65}
+#miechud footer{padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
+#miechud button{background:#111827;border:1px solid #303642;color:#e6e8ea;border-radius:8px;padding:6px 10px;cursor:pointer}
+#miechud .badge{font-size:10px;opacity:.75}
