@@ -1,1 +1,2 @@
+// js/safe-init.js (r13)
 (async function(){function log(...a){(console&&console.log)&&console.log('[MIEC]',...a)}try{const checks=await window.MIEC_SELFTEST.run();if(window.MIEC_HUD){window.MIEC_HUD.fill(checks);window.MIEC_HUD.show();}const hard=checks.some(c=>c.state==='err');if(hard){log('Falhas críticas detectadas. App não vai arrancar até resolver.');return;}log('Sanity OK — ponto de partida limpo. Pronto para integrar módulos.');}catch(e){console.error('Erro no boot seguro:',e);alert('Erro no boot seguro: '+(e&&e.message?e.message:String(e)));}})();

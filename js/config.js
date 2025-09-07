@@ -1,4 +1,4 @@
-// js/config.js — SANITY MODE (r13)
+// js/config.js — SANITY MODE (r13 drop-in)
 window.MIEC_CONFIG = {
   APP_NAME: "M.I.E.C.",
   VERSION: "v4.2.1-auth-min — r13 — 2025-09-07",
@@ -10,4 +10,5 @@ window.MIEC_CONFIG = {
   STORAGE_BUCKET: "photos",
   LS_OVERRIDE_KEY: "MIEC_CONFIG_OVERRIDE"
 };
-try{const ov=localStorage.getItem("MIEC_CONFIG_OVERRIDE"); if(ov) Object.assign(window.MIEC_CONFIG, JSON.parse(ov));}catch(e){}
+// Permitir override via localStorage
+try{const ov=localStorage.getItem("MIEC_CONFIG_OVERRIDE"); if(ov) Object.assign(window.MIEC_CONFIG, JSON.parse(ov));}catch(e){console.warn('Override inválido',e)}

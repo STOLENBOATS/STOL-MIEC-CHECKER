@@ -1,3 +1,4 @@
+// js/status-hud.js (r13)
 (function(){ 
   const cfg = window.MIEC_CONFIG||{};
   function el(t,p={},...k){const e=document.createElement(t);Object.assign(e,p);k.forEach(c=>e.append(c));return e;}
