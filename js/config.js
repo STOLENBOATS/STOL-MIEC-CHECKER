@@ -4,9 +4,9 @@ window.MIEC_CONFIG = {
   VERSION: "v4.2.1-auth-min — r13 — 2025-09-07",
   REQUIRE_AUTH: false,
   DEV_MODE: true,
-  AUTO_SYNC: false,
-  SUPABASE_URL: "https://SEU-PROJ.supabase.co",
-  SUPABASE_ANON_KEY: "SUA_ANON_KEY",
+  AUTO_SYNC: true,
+  SUPABASE_URL: "https://okmifknkaidblkueiwjn.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rbWlma25rYWlkYmxrdWVpd2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3MTI2MTYsImV4cCI6MjA3MTI4ODYxNn0.hrr7wc-SUb2iQfhS1iWrnnZj2KLql2CyPsooZGo_N5Y",
   STORAGE_BUCKET: "photos",
   LS_OVERRIDE_KEY: "MIEC_CONFIG_OVERRIDE"
 };
