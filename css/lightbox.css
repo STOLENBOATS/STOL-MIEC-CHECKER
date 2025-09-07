@@ -1,7 +1,5 @@
-:root{--thumb-w:64px;--thumb-h:48px}
-body.thumb-md{--thumb-w:120px;--thumb-h:90px}
 /* Minimal Lightbox for history thumbs + header polish */
-img.thumb{max-width:var(--thumb-w);max-height:var(--thumb-h);border-radius:6px;cursor:pointer;object-fit:cover;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+img.thumb{max-width:64px;max-height:48px;border-radius:6px;cursor:pointer;object-fit:cover;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .lb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:9999;padding:2rem}
 .lb-overlay.open{display:flex}
 .lb-overlay img{max-width:92vw;max-height:88vh;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
