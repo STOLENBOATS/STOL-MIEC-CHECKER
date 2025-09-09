@@ -63,7 +63,48 @@
   
 
 
-  <!-- MIEC • PRODUCTION BLOCK (auto) -->
+  
+
+  <!-- MIEC • INLINE SUPABASE CONFIG (fill or rely on localStorage MIEC_CONFIG) -->
+  <script id="miec-inline-config">
+    (function(){
+      try {
+        // If you PREFER localStorage: remove/ignore the next two const lines and set MIEC_CONFIG via console.
+        // Otherwise, FILL THESE with your Supabase project (anon key is public by design).
+        const SUPABASE_URL = "https://SEU-PROJ.supabase.co";        // TODO: replace
+        const SUPABASE_ANON_KEY = "SUA_ANON_KEY";                   // TODO: replace
+
+        // Optional extras (defaults):
+        window.MIEC_BUCKET = window.MIEC_BUCKET || "photos";
+        window.MIEC_ALLOW_DOMAIN = window.MIEC_ALLOW_DOMAIN || "stolenboats.github.io";
+
+        // Auto-populate localStorage if empty (one-time convenience)
+        const raw = localStorage.getItem("MIEC_CONFIG");
+        if (!raw && typeof SUPABASE_URL !== "undefined" && typeof SUPABASE_ANON_KEY !== "undefined"
+            && SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 20) {
+          localStorage.setItem("MIEC_CONFIG", JSON.stringify({
+            url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY,
+            bucket: window.MIEC_BUCKET, allowDomain: window.MIEC_ALLOW_DOMAIN
+          }));
+          console.log("[miec-inline-config] MIEC_CONFIG saved to localStorage from inline constants.");
+        }
+      } catch(e) {
+        console.warn("[miec-inline-config] error:", e);
+      }
+    })();
+  </script>
+  <!-- /MIEC • INLINE SUPABASE CONFIG -->
+
+
+  <!-- MIEC • PRODUCTION BLOCK (ordered, r14) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+  <script defer src="js/config.js?v=prod"></script>
+  <script defer src="js/supa-auth.js?v=prod"></script>
+  <script defer src="js/compat-bridge.js?v=prod"></script>
+  <script defer src="js/validador-gate.js?v=prod"></script>
+  <script defer src="js/validador-win.js?v=prod"></script>
+  <script defer src="js/validador-motor.js?v=prod"></script>
+  <script defer src="js/history-service.js?v=prod"></script>
   <script defer src="js/hotfix-history-inject.js?v=prod"></script>
   <script defer src="js/sync-bootstrap.js?v=prod"></script>
   <!-- /MIEC • PRODUCTION BLOCK -->
