@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+*.map
+*.bak
+*.old
+*.tmp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+html_samples/
