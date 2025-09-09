@@ -2,7 +2,7 @@
 window.MIEC_CONFIG = {
   APP_NAME: "M.I.E.C.",
   VERSION: "v4.2.1-auth-min — r13 — 2025-09-07",
-  REQUIRE_AUTH: true,
+  REQUIRE_AUTH: false,
   DEV_MODE: true,
   AUTO_SYNC: true,
   SUPABASE_URL: "https://okmifknkaidblkueiwjn.supabase.co",
